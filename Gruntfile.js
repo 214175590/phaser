@@ -236,6 +236,7 @@ module.exports = function (grunt) {
                 tasks.push('concat:pixiMain');
                 pixiFilelist.push('<%= modules_dir %>/pixi-main.js');
                 
+                /*
                 //  Optional Rope
                 if (!excludedKeys['rope'])
                 {
@@ -251,6 +252,7 @@ module.exports = function (grunt) {
                     tasks.push('concat:pixiTileSprite');
                     pixiFilelist.push('<%= modules_dir %>/pixi-tilesprite.js');
                 }
+                */
 
                 //  PIXI Outro
                 if (!excludedKeys['outro'])
@@ -309,6 +311,7 @@ module.exports = function (grunt) {
                 tasks.push('concat:pixiMain');
                 filelist.push('<%= modules_dir %>/pixi-main.js');
                 
+                /*
                 //  Optional Rope
                 if (!excludedKeys['rope'])
                 {
@@ -324,6 +327,7 @@ module.exports = function (grunt) {
                     tasks.push('concat:pixiTileSprite');
                     filelist.push('<%= modules_dir %>/pixi-tilesprite.js');
                 }
+                */
 
                 //  PIXI Outro
                 if (!excludedKeys['outro'])

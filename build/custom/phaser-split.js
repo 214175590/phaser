@@ -7,7 +7,7 @@
 *
 * Phaser - http://phaser.io
 *
-* v3.0.0 "Shadow Coast" - Built: Wed Sep 21 2016 23:21:17
+* v3.0.0 "Shadow Coast" - Built: Mon Nov 14 2016 16:26:13
 *
 * By Richard Davey http://www.photonstorm.com @photonstorm
 *
@@ -53,7 +53,7 @@ var Phaser = Phaser || {    // jshint ignore:line
     * @constant
     * @type {string}
     */
-    VERSION: '3.0.0 b1',
+    VERSION: '2.7.0',
 
     /**
     * An array of Phaser game instances.
@@ -518,70 +518,73 @@ var Phaser = Phaser || {    // jshint ignore:line
     BOTTOM_RIGHT: 12,
 
     /**
-     * Various blend modes supported by Pixi.
-     * 
-     * IMPORTANT: The WebGL renderer only supports the NORMAL, ADD, MULTIPLY and SCREEN blend modes.
-     * 
-     * @constant
-     * @property {Number} blendModes.NORMAL
-     * @property {Number} blendModes.ADD
-     * @property {Number} blendModes.MULTIPLY
-     * @property {Number} blendModes.SCREEN
-     * @property {Number} blendModes.OVERLAY
-     * @property {Number} blendModes.DARKEN
-     * @property {Number} blendModes.LIGHTEN
-     * @property {Number} blendModes.COLOR_DODGE
-     * @property {Number} blendModes.COLOR_BURN
-     * @property {Number} blendModes.HARD_LIGHT
-     * @property {Number} blendModes.SOFT_LIGHT
-     * @property {Number} blendModes.DIFFERENCE
-     * @property {Number} blendModes.EXCLUSION
-     * @property {Number} blendModes.HUE
-     * @property {Number} blendModes.SATURATION
-     * @property {Number} blendModes.COLOR
-     * @property {Number} blendModes.LUMINOSITY
-     * @static
-     */
+    * Various blend modes supported by Pixi.
+    * 
+    * IMPORTANT: The WebGL renderer only supports the NORMAL, ADD, MULTIPLY and SCREEN blend modes.
+    * 
+    * @constant
+    * @property {Number} blendModes.NORMAL
+    * @property {Number} blendModes.ADD
+    * @property {Number} blendModes.MULTIPLY
+    * @property {Number} blendModes.SCREEN
+    * @property {Number} blendModes.OVERLAY
+    * @property {Number} blendModes.DARKEN
+    * @property {Number} blendModes.LIGHTEN
+    * @property {Number} blendModes.COLOR_DODGE
+    * @property {Number} blendModes.COLOR_BURN
+    * @property {Number} blendModes.HARD_LIGHT
+    * @property {Number} blendModes.SOFT_LIGHT
+    * @property {Number} blendModes.DIFFERENCE
+    * @property {Number} blendModes.EXCLUSION
+    * @property {Number} blendModes.HUE
+    * @property {Number} blendModes.SATURATION
+    * @property {Number} blendModes.COLOR
+    * @property {Number} blendModes.LUMINOSITY
+    * @static
+    */
     blendModes: {
-        NORMAL:0,
-        ADD:1,
-        MULTIPLY:2,
-        SCREEN:3,
-        OVERLAY:4,
-        DARKEN:5,
-        LIGHTEN:6,
-        COLOR_DODGE:7,
-        COLOR_BURN:8,
-        HARD_LIGHT:9,
-        SOFT_LIGHT:10,
-        DIFFERENCE:11,
-        EXCLUSION:12,
-        HUE:13,
-        SATURATION:14,
-        COLOR:15,
-        LUMINOSITY:16
+        NORMAL: 0,
+        ADD: 1,
+        MULTIPLY: 2,
+        SCREEN: 3,
+        OVERLAY: 4,
+        DARKEN: 5,
+        LIGHTEN: 6,
+        COLOR_DODGE: 7,
+        COLOR_BURN: 8,
+        HARD_LIGHT: 9,
+        SOFT_LIGHT: 10,
+        DIFFERENCE: 11,
+        EXCLUSION: 12,
+        HUE: 13,
+        SATURATION: 14,
+        COLOR: 15,
+        LUMINOSITY: 16
     },
 
     /**
-     * The scale modes that are supported by Pixi.
-     *
-     * The DEFAULT scale mode affects the default scaling mode of future operations.
-     * It can be re-assigned to either LINEAR or NEAREST, depending upon suitability.
-     *
-     * @constant
-     * @property {Object} Phaser.scaleModes
-     * @property {Number} scaleModes.DEFAULT=LINEAR
-     * @property {Number} scaleModes.LINEAR Smooth scaling
-     * @property {Number} scaleModes.NEAREST Pixelating scaling
-     * @static
-     */
+    * The scale modes that are supported by Pixi.
+    *
+    * The DEFAULT scale mode affects the default scaling mode of future operations.
+    * It can be re-assigned to either LINEAR or NEAREST, depending upon suitability.
+    *
+    * @constant
+    * @property {Object} Phaser.scaleModes
+    * @property {Number} scaleModes.DEFAULT=LINEAR
+    * @property {Number} scaleModes.LINEAR Smooth scaling
+    * @property {Number} scaleModes.NEAREST Pixelating scaling
+    * @static
+    */
     scaleModes: {
-        DEFAULT:0,
-        LINEAR:0,
-        NEAREST:1
+        DEFAULT: 0,
+        LINEAR: 0,
+        NEAREST: 1
     },
 
-    PIXI: PIXI || {}
+    PIXI: PIXI || {},
+
+    //  Used to create IDs for various Pixi objects.
+    _UID: 0
 
 };
 
@@ -725,8 +728,11 @@ if (typeof window.Uint32Array !== "function" && typeof window.Uint32Array !== "o
         window[type].constructor = window[type];
     };
 
+    CheapArray('Float32Array'); // jshint ignore:line
     CheapArray('Uint32Array'); // jshint ignore:line
-    CheapArray('Int16Array');  // jshint ignore:line
+    CheapArray('Uint16Array'); // jshint ignore:line
+    CheapArray('Int16Array'); // jshint ignore:line
+    CheapArray('ArrayBuffer'); // jshint ignore:line
 }
 
 /**
@@ -3016,12 +3022,12 @@ Phaser.Matrix.prototype = {
     *
     * @method Phaser.Matrix#toArray
     * @param {boolean} [transpose=false] - Whether the values in the array are transposed or not.
-    * @param {PIXI.Float32Array} [array] - If provided the values will be set into this array, otherwise a new Float32Array is created.
-    * @return {PIXI.Float32Array} The newly created array which contains the matrix.
+    * @param {Float32Array} [array] - If provided the values will be set into this array, otherwise a new Float32Array is created.
+    * @return {Float32Array} The newly created array which contains the matrix.
     */
     toArray: function (transpose, array) {
 
-        if (array === undefined) { array = new PIXI.Float32Array(9); }
+        if (array === undefined) { array = new Float32Array(9); }
 
         if (transpose)
         {
@@ -6028,13 +6034,15 @@ Phaser.Camera.prototype = {
     * @param {numer} [color=0xffffff] - The color of the flash effect. I.e. 0xffffff for white, 0xff0000 for red, etc.
     * @param {number} [duration=500] - The duration of the flash effect in milliseconds.
     * @param {boolean} [force=false] - If a camera flash or fade effect is already running and force is true it will replace the previous effect, resetting the duration.
+    * @param {numer} [alpha=1] - The alpha value of the color applied to the flash effect.
     * @return {boolean} True if the effect was started, otherwise false.
     */
-    flash: function (color, duration, force) {
+    flash: function (color, duration, force, alpha) {
 
         if (color === undefined) { color = 0xffffff; }
         if (duration === undefined) { duration = 500; }
         if (force === undefined) { force = false; }
+        if (alpha === undefined) { alpha = 1; }
 
         if (!this.fx || (!force && this._fxDuration > 0))
         {
@@ -6043,7 +6051,7 @@ Phaser.Camera.prototype = {
 
         this.fx.clear();
 
-        this.fx.beginFill(color);
+        this.fx.beginFill(color, alpha);
         this.fx.drawRect(0, 0, this.width, this.height);
         this.fx.endFill();
 
@@ -6073,13 +6081,15 @@ Phaser.Camera.prototype = {
     * @param {numer} [color=0x000000] - The color the game will fade to. I.e. 0x000000 for black, 0xff0000 for red, etc.
     * @param {number} [duration=500] - The duration of the fade in milliseconds.
     * @param {boolean} [force=false] - If a camera flash or fade effect is already running and force is true it will replace the previous effect, resetting the duration.
+    * @param {numer} [alpha=1] - The alpha value of the color applied to the fade effect.
     * @return {boolean} True if the effect was started, otherwise false.
     */
-    fade: function (color, duration, force) {
+    fade: function (color, duration, force, alpha) {
 
         if (color === undefined) { color = 0x000000; }
         if (duration === undefined) { duration = 500; }
         if (force === undefined) { force = false; }
+        if (alpha === undefined) { alpha = 1; }
 
         if (!this.fx || (!force && this._fxDuration > 0))
         {
@@ -6088,7 +6098,7 @@ Phaser.Camera.prototype = {
 
         this.fx.clear();
 
-        this.fx.beginFill(color);
+        this.fx.beginFill(color, alpha);
         this.fx.drawRect(0, 0, this.width, this.height);
         this.fx.endFill();
 
@@ -8290,12 +8300,28 @@ Phaser.SignalBinding.prototype.constructor = Phaser.SignalBinding;
 
 /**
 * @author       Richard Davey <rich@photonstorm.com>
+* @author       Mat Groves (@Doormat23)
 * @copyright    2016 Photon Storm Ltd.
 * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
 */
 
 /**
 * This is a base Filter class to use for any Phaser filter development.
+* If you want to make a custom filter, this should be your base class.
+*
+* The default uniforms, types and values for all Filters are:
+*
+* ```
+* resolution: { type: '2f', value: { x: 256, y: 256 }}
+* time: { type: '1f', value: 0 }
+* mouse: { type: '2f', value: { x: 0.0, y: 0.0 } }
+* date: { type: '4fv', value: [ d.getFullYear(),  d.getMonth(),  d.getDate(), d.getHours() *60 * 60 + d.getMinutes() * 60 + d.getSeconds() ] }
+* sampleRate: { type: '1f', value: 44100.0 }
+* iChannel0: { type: 'sampler2D', value: null, textureData: { repeat: true } }
+* iChannel1: { type: 'sampler2D', value: null, textureData: { repeat: true } }
+* iChannel2: { type: 'sampler2D', value: null, textureData: { repeat: true } }
+* iChannel3: { type: 'sampler2D', value: null, textureData: { repeat: true } }
+* ```
 *
 * The vast majority of filters (including all of those that ship with Phaser) use fragment shaders, and
 * therefore only work in WebGL and are not supported by Canvas at all.
@@ -8303,8 +8329,8 @@ Phaser.SignalBinding.prototype.constructor = Phaser.SignalBinding;
 * @class Phaser.Filter
 * @constructor
 * @param {Phaser.Game} game - A reference to the currently running game.
-* @param {object} uniforms - Uniform mappings object
-* @param {Array|string} fragmentSrc - The fragment shader code. Either an array, one element per line of code, or a string.
+* @param {object} [uniforms] - Uniform mappings object. The uniforms are added on the default uniforms, or replace them if the keys are the same.
+* @param {Array|string} [fragmentSrc] - The fragment shader code. Either an array, one element per line of code, or a string.
 */
 Phaser.Filter = function (game, uniforms, fragmentSrc) {
 
@@ -8325,7 +8351,7 @@ Phaser.Filter = function (game, uniforms, fragmentSrc) {
     * @property {array} passes - An array of filter objects.
     * @private
     */
-    this.passes = [this];
+    this.passes = [ this ];
 
     /**
     * @property {array} shaders - Array an array of shaders.
@@ -8373,7 +8399,7 @@ Phaser.Filter = function (game, uniforms, fragmentSrc) {
 
     };
 
-    //  Copy over/replace any passed in the constructor
+    //  Copy over / replace any passed in the constructor
     if (uniforms)
     {
         for (var key in uniforms)
@@ -8382,25 +8408,35 @@ Phaser.Filter = function (game, uniforms, fragmentSrc) {
         }
     }
 
+    //  If fragmentSrc is a string, split it based on new-lines into an array
+    if (typeof fragmentSrc === 'string')
+    {
+        fragmentSrc = fragmentSrc.split('\n');
+    }
+
     /**
     * @property {array|string} fragmentSrc - The fragment shader code.
     */
-    this.fragmentSrc = fragmentSrc || '';
+    this.fragmentSrc = fragmentSrc || [];
 
 };
 
 Phaser.Filter.prototype = {
 
     /**
-    * Should be over-ridden.
+    * This should be over-ridden. Will receive a variable number of arguments.
+    * 
     * @method Phaser.Filter#init
     */
     init: function () {
+
         //  This should be over-ridden. Will receive a variable number of arguments.
+
     },
 
     /**
     * Set the resolution uniforms on the filter.
+    * 
     * @method Phaser.Filter#setResolution
     * @param {number} width - The width of the display.
     * @param {number} height - The height of the display.
@@ -8414,12 +8450,13 @@ Phaser.Filter.prototype = {
 
     /**
     * Updates the filter.
+    * 
     * @method Phaser.Filter#update
     * @param {Phaser.Pointer} [pointer] - A Pointer object to use for the filter. The coordinates are mapped to the mouse uniform.
     */
     update: function (pointer) {
 
-        if (typeof pointer !== 'undefined')
+        if (pointer)
         {
             var x = pointer.x / this.game.width;
             var y = 1 - pointer.y / this.game.height;
@@ -8491,12 +8528,33 @@ Phaser.Filter.prototype = {
     },
 
     /**
-    * Clear down this Filter and null out references
+    * Syncs the uniforms between the class object and the shaders.
+    * 
+    * @method Phaser.Filter#syncUniforms
+    */
+    syncUniforms: function () {
+
+        for (var i = 0; i < this.shaders.length; i++)
+        {
+            this.shaders[i].dirty = true;
+        }
+
+    },
+
+    /**
+    * Clear down this Filter and null out references to game.
+    * 
     * @method Phaser.Filter#destroy
     */
     destroy: function () {
 
+        this.passes.length = 0;
+        this.shaders.length = 0;
+        this.fragmentSrc.length = 0;
+
         this.game = null;
+        this.uniforms = null;
+        this.prevPoint = null;
 
     }
 
@@ -8510,12 +8568,16 @@ Phaser.Filter.prototype.constructor = Phaser.Filter;
 */
 Object.defineProperty(Phaser.Filter.prototype, 'width', {
 
-    get: function() {
+    get: function () {
+
         return this.uniforms.resolution.value.x;
+
     },
 
-    set: function(value) {
+    set: function (value) {
+
         this.uniforms.resolution.value.x = value;
+
     }
 
 });
@@ -8526,12 +8588,16 @@ Object.defineProperty(Phaser.Filter.prototype, 'width', {
 */
 Object.defineProperty(Phaser.Filter.prototype, 'height', {
 
-    get: function() {
+    get: function () {
+
         return this.uniforms.resolution.value.y;
+
     },
 
-    set: function(value) {
+    set: function (value) {
+
         this.uniforms.resolution.value.y = value;
+
     }
 
 });
@@ -11032,8 +11098,8 @@ Phaser.Group.prototype.postUpdate = function () {
     //  Fixed to Camera?
     if (this.fixedToCamera)
     {
-        this.x = this.game.camera.view.x + this.cameraOffset.x;
-        this.y = this.game.camera.view.y + this.cameraOffset.y;
+        this.x = (this.game.camera.view.x + this.cameraOffset.x) / this.game.camera.scale.x;
+        this.y = (this.game.camera.view.y + this.cameraOffset.y) / this.game.camera.scale.y;
     }
 
     for (var i = 0; i < this.children.length; i++)
@@ -13474,7 +13540,7 @@ Phaser.Game.prototype = {
         }
         else if (window['console'])
         {
-            console.log('Phaser v' + v + ' | Pixi.js ' + PIXI.VERSION + ' | ' + r + ' | ' + a + ' | http://phaser.io');
+            console.log('Phaser v' + v + ' | Pixi.js | ' + r + ' | ' + a + ' | http://phaser.io');
         }
 
     },
@@ -14433,7 +14499,7 @@ Phaser.Input.prototype = {
 
         this.activePointer = this.mousePointer;
 
-        this.hitCanvas = PIXI.CanvasPool.create(this, 1, 1);
+        this.hitCanvas = Phaser.CanvasPool.create(this, 1, 1);
         this.hitContext = this.hitCanvas.getContext('2d');
 
         this.mouse.start();
@@ -14479,7 +14545,7 @@ Phaser.Input.prototype = {
 
         this.moveCallbacks = [];
 
-        PIXI.CanvasPool.remove(this);
+        Phaser.CanvasPool.remove(this);
 
         this.game.canvas.removeEventListener('click', this._onClickTrampoline);
 
@@ -26696,7 +26762,7 @@ Phaser.Sprite.prototype.preUpdateCore = Phaser.Component.Core.preUpdate;
 * @memberof Phaser.Sprite
 * @return {boolean} True if the Sprite was rendered, otherwise false.
 */
-Phaser.Sprite.prototype.preUpdate = function() {
+Phaser.Sprite.prototype.preUpdate = function () {
 
     if (!this.preUpdatePhysics() || !this.preUpdateLifeSpan() || !this.preUpdateInWorld())
     {
@@ -27424,8 +27490,6 @@ Phaser.SpriteBatch = function (game, parent, name, addToStage) {
 
     if (parent === undefined || parent === null) { parent = game.world; }
 
-    PIXI.SpriteBatch.call(this);
-
     Phaser.Group.call(this, game, parent, name, addToStage);
 
     /**
@@ -27434,11 +27498,160 @@ Phaser.SpriteBatch = function (game, parent, name, addToStage) {
     */
     this.type = Phaser.SPRITEBATCH;
 
+    /**
+    * @property {Object} fastSpriteBatch - WebGL Batch Shader.
+    * @private
+    */
+    this.fastSpriteBatch = null;
+
+    /**
+    * @property {boolean} ready - Internal flag.
+    * @private
+    */
+    this.ready = false;
+
 };
 
-Phaser.SpriteBatch.prototype = Phaser.Utils.extend(true, Phaser.SpriteBatch.prototype, PIXI.SpriteBatch.prototype, Phaser.Group.prototype);
+Phaser.SpriteBatch.prototype = Object.create(Phaser.Group.prototype);
 
 Phaser.SpriteBatch.prototype.constructor = Phaser.SpriteBatch;
+
+/**
+* Renders the Sprite Batch using the WebGL renderer.
+*
+* @private
+* @method
+* @memberof Phaser.SpriteBatch
+* @param {RenderSession} renderSession
+*/
+Phaser.SpriteBatch.prototype._renderWebGL = function (renderSession) {
+
+    if (!this.visible || this.alpha <= 0 || !this.children.length)
+    {
+        return;
+    }
+
+    if (!this.ready)
+    {
+        this.fastSpriteBatch = new PIXI.WebGLFastSpriteBatch(renderSession.gl);
+
+        this.ready = true;
+    }
+    
+    if (this.fastSpriteBatch.gl !== renderSession.gl)
+    {
+        this.fastSpriteBatch.setContext(renderSession.gl);
+    }
+
+    renderSession.spriteBatch.stop();
+    
+    renderSession.shaderManager.setShader(renderSession.shaderManager.fastShader);
+    
+    this.fastSpriteBatch.begin(this, renderSession);
+    this.fastSpriteBatch.render(this);
+
+    renderSession.spriteBatch.start();
+ 
+};
+
+/**
+* Renders the Sprite Batch using the Canvas renderer.
+*
+* @private
+* @method
+* @memberof Phaser.SpriteBatch
+* @param {RenderSession} renderSession
+*/
+Phaser.SpriteBatch.prototype._renderCanvas = function (renderSession) {
+
+    if (!this.visible || this.alpha <= 0 || !this.children.length)
+    {
+        return;
+    }
+    
+    var context = renderSession.context;
+
+    context.globalAlpha = this.worldAlpha;
+
+    this.displayObjectUpdateTransform();
+
+    var transform = this.worldTransform;
+       
+    var isRotated = true;
+
+    for (var i = 0; i < this.children.length; i++)
+    {
+        var child = this.children[i];
+
+        if (!child.visible)
+        {
+            continue;
+        }
+
+        var texture = child.texture;
+        var frame = texture.frame;
+
+        context.globalAlpha = this.worldAlpha * child.alpha;
+
+        if (child.rotation % (Math.PI * 2) === 0)
+        {
+            //  If rotation === 0 we can avoid setTransform
+
+            if (isRotated)
+            {
+                context.setTransform(transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
+                isRotated = false;
+            }
+
+            context.drawImage(
+                texture.baseTexture.source,
+                frame.x,
+                frame.y,
+                frame.width,
+                frame.height,
+                ((child.anchor.x) * (-frame.width * child.scale.x) + child.position.x + 0.5 + renderSession.shakeX) | 0,
+                ((child.anchor.y) * (-frame.height * child.scale.y) + child.position.y + 0.5 + renderSession.shakeY) | 0,
+                frame.width * child.scale.x,
+                frame.height * child.scale.y);
+        }
+        else
+        {
+            if (!isRotated)
+            {
+                isRotated = true;
+            }
+    
+            child.displayObjectUpdateTransform();
+           
+            var childTransform = child.worldTransform;
+            var tx = (childTransform.tx * renderSession.resolution) + renderSession.shakeX;
+            var ty = (childTransform.ty * renderSession.resolution) + renderSession.shakeY;
+
+            // allow for trimming
+           
+            if (renderSession.roundPixels)
+            {
+                context.setTransform(childTransform.a, childTransform.b, childTransform.c, childTransform.d, tx | 0, ty | 0);
+            }
+            else
+            {
+                context.setTransform(childTransform.a, childTransform.b, childTransform.c, childTransform.d, tx, ty);
+            }
+
+            context.drawImage(
+                texture.baseTexture.source,
+                frame.x,
+                frame.y,
+                frame.width,
+                frame.height,
+                ((child.anchor.x) * (-frame.width) + 0.5) | 0,
+                ((child.anchor.y) * (-frame.height) + 0.5) | 0,
+                frame.width,
+                frame.height);
+        }
+    }
+
+};
 
 /**
 * @author       Richard Davey <rich@photonstorm.com>
@@ -27722,7 +27935,7 @@ Phaser.BitmapData.prototype = {
 
         if (this._swapCanvas === undefined)
         {
-            this._swapCanvas = PIXI.CanvasPool.create(this, this.width, this.height);
+            this._swapCanvas = Phaser.CanvasPool.create(this, this.width, this.height);
         }
 
         var c = this._swapCanvas;
@@ -27785,7 +27998,7 @@ Phaser.BitmapData.prototype = {
 
         if (this._swapCanvas === undefined)
         {
-            this._swapCanvas = PIXI.CanvasPool.create(this, this.width, this.height);
+            this._swapCanvas = Phaser.CanvasPool.create(this, this.width, this.height);
         }
 
         var c = this._swapCanvas;
@@ -28683,7 +28896,7 @@ Phaser.BitmapData.prototype = {
 
         if (source === undefined || source === null) { source = this; }
 
-        if (source instanceof Phaser.RenderTexture || source instanceof PIXI.RenderTexture)
+        if (source instanceof Phaser.RenderTexture)
         {
             source = source.getCanvas();
         }
@@ -28700,7 +28913,7 @@ Phaser.BitmapData.prototype = {
             this._rotate = source.rotation;
             this._alpha.current = source.alpha;
 
-            if (source.texture instanceof Phaser.RenderTexture || source.texture instanceof PIXI.RenderTexture)
+            if (source.texture instanceof Phaser.RenderTexture)
             {
                 this._image = source.texture.getCanvas();
             }
@@ -28899,7 +29112,7 @@ Phaser.BitmapData.prototype = {
             return this;
         }
 
-        if (source.texture instanceof Phaser.RenderTexture || source.texture instanceof PIXI.RenderTexture)
+        if (source.texture instanceof Phaser.RenderTexture)
         {
             this._image = source.texture.getCanvas();
         }
@@ -29474,7 +29687,7 @@ Phaser.BitmapData.prototype = {
 
         this.texture.destroy(true);
 
-        PIXI.CanvasPool.remove(this);
+        Phaser.CanvasPool.remove(this);
 
     },
 
@@ -29890,2004 +30103,6 @@ Phaser.BitmapData.prototype.constructor = Phaser.BitmapData;
  */
 
 /**
- * The Graphics class contains methods used to draw primitive shapes such as lines, circles and rectangles to the display, and color and fill them.
- * 
- * @class Graphics
- * @extends DisplayObjectContainer
- * @constructor
- */
-PIXI.Graphics = function()
-{
-    PIXI.DisplayObjectContainer.call(this);
-
-    this.renderable = true;
-
-    /**
-     * The alpha value used when filling the Graphics object.
-     *
-     * @property fillAlpha
-     * @type Number
-     */
-    this.fillAlpha = 1;
-
-    /**
-     * The width (thickness) of any lines drawn.
-     *
-     * @property lineWidth
-     * @type Number
-     */
-    this.lineWidth = 0;
-
-    /**
-     * The color of any lines drawn.
-     *
-     * @property lineColor
-     * @type String
-     * @default 0
-     */
-    this.lineColor = 0;
-
-    /**
-     * Graphics data
-     *
-     * @property graphicsData
-     * @type Array
-     * @private
-     */
-    this.graphicsData = [];
-
-    /**
-     * The tint applied to the graphic shape. This is a hex value. Apply a value of 0xFFFFFF to reset the tint.
-     *
-     * @property tint
-     * @type Number
-     * @default 0xFFFFFF
-     */
-    this.tint = 0xFFFFFF;
-
-    /**
-     * The blend mode to be applied to the graphic shape. Apply a value of PIXI.blendModes.NORMAL to reset the blend mode.
-     *
-     * @property blendMode
-     * @type Number
-     * @default PIXI.blendModes.NORMAL;
-     */
-    this.blendMode = PIXI.blendModes.NORMAL;
-    
-    /**
-     * Current path
-     *
-     * @property currentPath
-     * @type Object
-     * @private
-     */
-    this.currentPath = null;
-    
-    /**
-     * Array containing some WebGL-related properties used by the WebGL renderer.
-     *
-     * @property _webGL
-     * @type Array
-     * @private
-     */
-    this._webGL = [];
-
-    /**
-     * Whether this shape is being used as a mask.
-     *
-     * @property isMask
-     * @type Boolean
-     */
-    this.isMask = false;
-
-    /**
-     * The bounds' padding used for bounds calculation.
-     *
-     * @property boundsPadding
-     * @type Number
-     */
-    this.boundsPadding = 0;
-
-    this._localBounds = new PIXI.Rectangle(0,0,1,1);
-
-    /**
-     * Used to detect if the graphics object has changed. If this is set to true then the graphics object will be recalculated.
-     * 
-     * @property dirty
-     * @type Boolean
-     * @private
-     */
-    this.dirty = true;
-
-    /**
-     * Used to detect if the bounds have been invalidated, by this Graphics being cleared or drawn to.
-     * If this is set to true then the updateLocalBounds is called once in the postUpdate method.
-     * 
-     * @property _boundsDirty
-     * @type Boolean
-     * @private
-     */
-    this._boundsDirty = false;
-
-    /**
-     * Used to detect if the webgl graphics object has changed. If this is set to true then the graphics object will be recalculated.
-     * 
-     * @property webGLDirty
-     * @type Boolean
-     * @private
-     */
-    this.webGLDirty = false;
-
-    /**
-     * Used to detect if the cached sprite object needs to be updated.
-     * 
-     * @property cachedSpriteDirty
-     * @type Boolean
-     * @private
-     */
-    this.cachedSpriteDirty = false;
-
-};
-
-// constructor
-PIXI.Graphics.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
-PIXI.Graphics.prototype.constructor = PIXI.Graphics;
-
-/**
- * Specifies the line style used for subsequent calls to Graphics methods such as the lineTo() method or the drawCircle() method.
- *
- * @method lineStyle
- * @param lineWidth {Number} width of the line to draw, will update the objects stored style
- * @param color {Number} color of the line to draw, will update the objects stored style
- * @param alpha {Number} alpha of the line to draw, will update the objects stored style
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.lineStyle = function(lineWidth, color, alpha)
-{
-    this.lineWidth = lineWidth || 0;
-    this.lineColor = color || 0;
-    this.lineAlpha = (alpha === undefined) ? 1 : alpha;
-
-    if (this.currentPath)
-    {
-        if (this.currentPath.shape.points.length)
-        {
-            // halfway through a line? start a new one!
-            this.drawShape(new PIXI.Polygon(this.currentPath.shape.points.slice(-2)));
-        }
-        else
-        {
-            // otherwise its empty so lets just set the line properties
-            this.currentPath.lineWidth = this.lineWidth;
-            this.currentPath.lineColor = this.lineColor;
-            this.currentPath.lineAlpha = this.lineAlpha;
-        }
-    }
-
-    return this;
-};
-
-/**
- * Moves the current drawing position to x, y.
- *
- * @method moveTo
- * @param x {Number} the X coordinate to move to
- * @param y {Number} the Y coordinate to move to
- * @return {Graphics}
-  */
-PIXI.Graphics.prototype.moveTo = function(x, y)
-{
-    this.drawShape(new PIXI.Polygon([x, y]));
-
-    return this;
-};
-
-/**
- * Draws a line using the current line style from the current drawing position to (x, y);
- * The current drawing position is then set to (x, y).
- *
- * @method lineTo
- * @param x {Number} the X coordinate to draw to
- * @param y {Number} the Y coordinate to draw to
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.lineTo = function(x, y)
-{
-    if (!this.currentPath)
-    {
-        this.moveTo(0, 0);
-    }
-
-    this.currentPath.shape.points.push(x, y);
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return this;
-};
-
-/**
- * Calculate the points for a quadratic bezier curve and then draws it.
- * Based on: https://stackoverflow.com/questions/785097/how-do-i-implement-a-bezier-curve-in-c
- *
- * @method quadraticCurveTo
- * @param cpX {Number} Control point x
- * @param cpY {Number} Control point y
- * @param toX {Number} Destination point x
- * @param toY {Number} Destination point y
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.quadraticCurveTo = function(cpX, cpY, toX, toY)
-{
-    if (this.currentPath)
-    {
-        if (this.currentPath.shape.points.length === 0)
-        {
-            this.currentPath.shape.points = [0, 0];
-        }
-    }
-    else
-    {
-        this.moveTo(0,0);
-    }
-
-    var xa,
-        ya,
-        n = 20,
-        points = this.currentPath.shape.points;
-
-    if (points.length === 0)
-    {
-        this.moveTo(0, 0);
-    }
-
-    var fromX = points[points.length - 2];
-    var fromY = points[points.length - 1];
-    var j = 0;
-    for (var i = 1; i <= n; ++i)
-    {
-        j = i / n;
-
-        xa = fromX + ( (cpX - fromX) * j );
-        ya = fromY + ( (cpY - fromY) * j );
-
-        points.push( xa + ( ((cpX + ( (toX - cpX) * j )) - xa) * j ),
-                     ya + ( ((cpY + ( (toY - cpY) * j )) - ya) * j ) );
-    }
-
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return this;
-};
-
-/**
- * Calculate the points for a bezier curve and then draws it.
- *
- * @method bezierCurveTo
- * @param cpX {Number} Control point x
- * @param cpY {Number} Control point y
- * @param cpX2 {Number} Second Control point x
- * @param cpY2 {Number} Second Control point y
- * @param toX {Number} Destination point x
- * @param toY {Number} Destination point y
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.bezierCurveTo = function(cpX, cpY, cpX2, cpY2, toX, toY)
-{
-    if (this.currentPath)
-    {
-        if (this.currentPath.shape.points.length === 0)
-        {
-            this.currentPath.shape.points = [0, 0];
-        }
-    }
-    else
-    {
-        this.moveTo(0,0);
-    }
-
-    var n = 20,
-        dt,
-        dt2,
-        dt3,
-        t2,
-        t3,
-        points = this.currentPath.shape.points;
-
-    var fromX = points[points.length-2];
-    var fromY = points[points.length-1];
-    var j = 0;
-
-    for (var i = 1; i <= n; ++i)
-    {
-        j = i / n;
-
-        dt = (1 - j);
-        dt2 = dt * dt;
-        dt3 = dt2 * dt;
-
-        t2 = j * j;
-        t3 = t2 * j;
-        
-        points.push( dt3 * fromX + 3 * dt2 * j * cpX + 3 * dt * t2 * cpX2 + t3 * toX,
-                     dt3 * fromY + 3 * dt2 * j * cpY + 3 * dt * t2 * cpY2 + t3 * toY);
-    }
-    
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return this;
-};
-
-/*
- * The arcTo() method creates an arc/curve between two tangents on the canvas.
- * 
- * "borrowed" from https://code.google.com/p/fxcanvas/ - thanks google!
- *
- * @method arcTo
- * @param x1 {Number} The x-coordinate of the beginning of the arc
- * @param y1 {Number} The y-coordinate of the beginning of the arc
- * @param x2 {Number} The x-coordinate of the end of the arc
- * @param y2 {Number} The y-coordinate of the end of the arc
- * @param radius {Number} The radius of the arc
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.arcTo = function(x1, y1, x2, y2, radius)
-{
-    if (this.currentPath)
-    {
-        if (this.currentPath.shape.points.length === 0)
-        {
-            this.currentPath.shape.points.push(x1, y1);
-        }
-    }
-    else
-    {
-        this.moveTo(x1, y1);
-    }
-
-    var points = this.currentPath.shape.points,
-        fromX = points[points.length-2],
-        fromY = points[points.length-1],
-        a1 = fromY - y1,
-        b1 = fromX - x1,
-        a2 = y2   - y1,
-        b2 = x2   - x1,
-        mm = Math.abs(a1 * b2 - b1 * a2);
-
-    if (mm < 1.0e-8 || radius === 0)
-    {
-        if (points[points.length-2] !== x1 || points[points.length-1] !== y1)
-        {
-            points.push(x1, y1);
-        }
-    }
-    else
-    {
-        var dd = a1 * a1 + b1 * b1,
-            cc = a2 * a2 + b2 * b2,
-            tt = a1 * a2 + b1 * b2,
-            k1 = radius * Math.sqrt(dd) / mm,
-            k2 = radius * Math.sqrt(cc) / mm,
-            j1 = k1 * tt / dd,
-            j2 = k2 * tt / cc,
-            cx = k1 * b2 + k2 * b1,
-            cy = k1 * a2 + k2 * a1,
-            px = b1 * (k2 + j1),
-            py = a1 * (k2 + j1),
-            qx = b2 * (k1 + j2),
-            qy = a2 * (k1 + j2),
-            startAngle = Math.atan2(py - cy, px - cx),
-            endAngle   = Math.atan2(qy - cy, qx - cx);
-
-        this.arc(cx + x1, cy + y1, radius, startAngle, endAngle, b1 * a2 > b2 * a1);
-    }
-
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return this;
-};
-
-/**
- * The arc method creates an arc/curve (used to create circles, or parts of circles).
- *
- * @method arc
- * @param cx {Number} The x-coordinate of the center of the circle
- * @param cy {Number} The y-coordinate of the center of the circle
- * @param radius {Number} The radius of the circle
- * @param startAngle {Number} The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
- * @param endAngle {Number} The ending angle, in radians
- * @param anticlockwise {Boolean} Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default, and indicates clockwise, while true indicates counter-clockwise.
- * @param segments {Number} Optional. The number of segments to use when calculating the arc. The default is 40. If you need more fidelity use a higher number.
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.arc = function(cx, cy, radius, startAngle, endAngle, anticlockwise, segments)
-{
-    //  If we do this we can never draw a full circle
-    if (startAngle === endAngle)
-    {
-        return this;
-    }
-
-    if (anticlockwise === undefined) { anticlockwise = false; }
-    if (segments === undefined) { segments = 40; }
-
-    if (!anticlockwise && endAngle <= startAngle)
-    {
-        endAngle += Math.PI * 2;
-    }
-    else if (anticlockwise && startAngle <= endAngle)
-    {
-        startAngle += Math.PI * 2;
-    }
-
-    var sweep = anticlockwise ? (startAngle - endAngle) * -1 : (endAngle - startAngle);
-    var segs =  Math.ceil(Math.abs(sweep) / (Math.PI * 2)) * segments;
-
-    //  Sweep check - moved here because we don't want to do the moveTo below if the arc fails
-    if (sweep === 0)
-    {
-        return this;
-    }
-
-    var startX = cx + Math.cos(startAngle) * radius;
-    var startY = cy + Math.sin(startAngle) * radius;
-
-    if (anticlockwise && this.filling)
-    {
-        this.moveTo(cx, cy);
-    }
-    else
-    {
-        this.moveTo(startX, startY);
-    }
-
-    //  currentPath will always exist after calling a moveTo
-    var points = this.currentPath.shape.points;
-
-    var theta = sweep / (segs * 2);
-    var theta2 = theta * 2;
-
-    var cTheta = Math.cos(theta);
-    var sTheta = Math.sin(theta);
-    
-    var segMinus = segs - 1;
-
-    var remainder = (segMinus % 1) / segMinus;
-
-    for (var i = 0; i <= segMinus; i++)
-    {
-        var real =  i + remainder * i;
-    
-        var angle = ((theta) + startAngle + (theta2 * real));
-
-        var c = Math.cos(angle);
-        var s = -Math.sin(angle);
-
-        points.push(( (cTheta *  c) + (sTheta * s) ) * radius + cx,
-                    ( (cTheta * -s) + (sTheta * c) ) * radius + cy);
-    }
-
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return this;
-};
-
-/**
- * Specifies a simple one-color fill that subsequent calls to other Graphics methods
- * (such as lineTo() or drawCircle()) use when drawing.
- *
- * @method beginFill
- * @param color {Number} the color of the fill
- * @param alpha {Number} the alpha of the fill
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.beginFill = function(color, alpha)
-{
-    this.filling = true;
-    this.fillColor = color || 0;
-    this.fillAlpha = (alpha === undefined) ? 1 : alpha;
-
-    if (this.currentPath)
-    {
-        if (this.currentPath.shape.points.length <= 2)
-        {
-            this.currentPath.fill = this.filling;
-            this.currentPath.fillColor = this.fillColor;
-            this.currentPath.fillAlpha = this.fillAlpha;
-        }
-    }
-
-    return this;
-};
-
-/**
- * Applies a fill to the lines and shapes that were added since the last call to the beginFill() method.
- *
- * @method endFill
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.endFill = function()
-{
-    this.filling = false;
-    this.fillColor = null;
-    this.fillAlpha = 1;
-
-    return this;
-};
-
-/**
- * @method drawRect
- *
- * @param x {Number} The X coord of the top-left of the rectangle
- * @param y {Number} The Y coord of the top-left of the rectangle
- * @param width {Number} The width of the rectangle
- * @param height {Number} The height of the rectangle
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.drawRect = function(x, y, width, height)
-{
-    this.drawShape(new PIXI.Rectangle(x, y, width, height));
-
-    return this;
-};
-
-/**
- * @method drawRoundedRect
- * @param x {Number} The X coord of the top-left of the rectangle
- * @param y {Number} The Y coord of the top-left of the rectangle
- * @param width {Number} The width of the rectangle
- * @param height {Number} The height of the rectangle
- * @param radius {Number} Radius of the rectangle corners. In WebGL this must be a value between 0 and 9.
- */
-PIXI.Graphics.prototype.drawRoundedRect = function(x, y, width, height, radius)
-{
-    this.drawShape(new PIXI.RoundedRectangle(x, y, width, height, radius));
-
-    return this;
-};
-
-/**
- * Draws a circle.
- *
- * @method drawCircle
- * @param x {Number} The X coordinate of the center of the circle
- * @param y {Number} The Y coordinate of the center of the circle
- * @param diameter {Number} The diameter of the circle
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.drawCircle = function(x, y, diameter)
-{
-    this.drawShape(new PIXI.Circle(x, y, diameter));
-
-    return this;
-};
-
-/**
- * Draws an ellipse.
- *
- * @method drawEllipse
- * @param x {Number} The X coordinate of the center of the ellipse
- * @param y {Number} The Y coordinate of the center of the ellipse
- * @param width {Number} The half width of the ellipse
- * @param height {Number} The half height of the ellipse
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.drawEllipse = function(x, y, width, height)
-{
-    this.drawShape(new PIXI.Ellipse(x, y, width, height));
-
-    return this;
-};
-
-/**
- * Draws a polygon using the given path.
- *
- * @method drawPolygon
- * @param path {Array|Phaser.Polygon} The path data used to construct the polygon. Can either be an array of points or a Phaser.Polygon object.
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.drawPolygon = function(path)
-{
-    if (path instanceof Phaser.Polygon || path instanceof PIXI.Polygon)
-    {
-        path = path.points;
-    }
-
-    // prevents an argument assignment deopt
-    // see section 3.1: https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
-    var points = path;
-
-    if (!Array.isArray(points))
-    {
-        // prevents an argument leak deopt
-        // see section 3.2: https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
-        points = new Array(arguments.length);
-
-        for (var i = 0; i < points.length; ++i)
-        {
-            points[i] = arguments[i];
-        }
-    }
-
-    this.drawShape(new Phaser.Polygon(points));
-
-    return this;
-};
-
-/**
- * Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
- *
- * @method clear
- * @return {Graphics}
- */
-PIXI.Graphics.prototype.clear = function()
-{
-    this.lineWidth = 0;
-    this.filling = false;
-
-    this.dirty = true;
-    this._boundsDirty = true;
-    this.clearDirty = true;
-    this.graphicsData = [];
-
-    this.updateLocalBounds();
-
-    return this;
-};
-
-/**
- * Useful function that returns a texture of the graphics object that can then be used to create sprites
- * This can be quite useful if your geometry is complicated and needs to be reused multiple times.
- *
- * @method generateTexture
- * @param [resolution=1] {Number} The resolution of the texture being generated
- * @param [scaleMode=0] {Number} Should be one of the PIXI.scaleMode consts
- * @param [padding=0] {Number} Add optional extra padding to the generated texture (default 0)
- * @return {Texture} a texture of the graphics object
- */
-PIXI.Graphics.prototype.generateTexture = function(resolution, scaleMode, padding)
-{
-    if (resolution === undefined) { resolution = 1; }
-    if (scaleMode === undefined) { scaleMode = PIXI.scaleModes.DEFAULT; }
-    if (padding === undefined) { padding = 0; }
-
-    var bounds = this.getBounds();
-
-    bounds.width += padding;
-    bounds.height += padding;
-   
-    var canvasBuffer = new PIXI.CanvasBuffer(bounds.width * resolution, bounds.height * resolution);
-    
-    var texture = PIXI.Texture.fromCanvas(canvasBuffer.canvas, scaleMode);
-
-    texture.baseTexture.resolution = resolution;
-
-    canvasBuffer.context.scale(resolution, resolution);
-
-    canvasBuffer.context.translate(-bounds.x, -bounds.y);
-
-    PIXI.CanvasGraphics.renderGraphics(this, canvasBuffer.context);
-
-    return texture;
-};
-
-/**
-* Renders the object using the WebGL renderer
-*
-* @method _renderWebGL
-* @param renderSession {RenderSession} 
-* @private
-*/
-PIXI.Graphics.prototype._renderWebGL = function(renderSession)
-{
-    // if the sprite is not visible or the alpha is 0 then no need to render this element
-    if (this.visible === false || this.alpha === 0 || this.isMask === true) return;
-
-    if (this._cacheAsBitmap)
-    {
-        if (this.dirty || this.cachedSpriteDirty)
-        {
-            this._generateCachedSprite();
-   
-            // we will also need to update the texture on the gpu too!
-            this.updateCachedSpriteTexture();
-
-            this.cachedSpriteDirty = false;
-            this.dirty = false;
-        }
-
-        this._cachedSprite.worldAlpha = this.worldAlpha;
-
-        PIXI.Sprite.prototype._renderWebGL.call(this._cachedSprite, renderSession);
-
-        return;
-    }
-    else
-    {
-        renderSession.spriteBatch.stop();
-        renderSession.blendModeManager.setBlendMode(this.blendMode);
-
-        if (this._mask) renderSession.maskManager.pushMask(this._mask, renderSession);
-        if (this._filters) renderSession.filterManager.pushFilter(this._filterBlock);
-      
-        // check blend mode
-        if (this.blendMode !== renderSession.spriteBatch.currentBlendMode)
-        {
-            renderSession.spriteBatch.currentBlendMode = this.blendMode;
-            var blendModeWebGL = PIXI.blendModesWebGL[renderSession.spriteBatch.currentBlendMode];
-            renderSession.spriteBatch.gl.blendFunc(blendModeWebGL[0], blendModeWebGL[1]);
-        }
-        
-        // check if the webgl graphic needs to be updated
-        if (this.webGLDirty)
-        {
-            this.dirty = true;
-            this.webGLDirty = false;
-        }
-        
-        PIXI.WebGLGraphics.renderGraphics(this, renderSession);
-        
-        // only render if it has children!
-        if (this.children.length)
-        {
-            renderSession.spriteBatch.start();
-
-            // simple render children!
-            for (var i = 0; i < this.children.length; i++)
-            {
-                this.children[i]._renderWebGL(renderSession);
-            }
-
-            renderSession.spriteBatch.stop();
-        }
-
-        if (this._filters) renderSession.filterManager.popFilter();
-        if (this._mask) renderSession.maskManager.popMask(this.mask, renderSession);
-          
-        renderSession.drawCount++;
-
-        renderSession.spriteBatch.start();
-    }
-};
-
-/**
-* Renders the object using the Canvas renderer
-*
-* @method _renderCanvas
-* @param renderSession {RenderSession} 
-* @private
-*/
-PIXI.Graphics.prototype._renderCanvas = function(renderSession)
-{
-    // if the sprite is not visible or the alpha is 0 then no need to render this element
-    if (this.visible === false || this.alpha === 0 || this.isMask === true) return;
-
-    // if the tint has changed, set the graphics object to dirty.
-    if (this._prevTint !== this.tint) {
-        this.dirty = true;
-        this._prevTint = this.tint;
-    }
-
-    if (this._cacheAsBitmap)
-    {
-        if (this.dirty || this.cachedSpriteDirty)
-        {
-            this._generateCachedSprite();
-   
-            // we will also need to update the texture
-            this.updateCachedSpriteTexture();
-
-            this.cachedSpriteDirty = false;
-            this.dirty = false;
-        }
-
-        this._cachedSprite.alpha = this.alpha;
-
-        PIXI.Sprite.prototype._renderCanvas.call(this._cachedSprite, renderSession);
-
-        return;
-    }
-    else
-    {
-        var context = renderSession.context;
-        var transform = this.worldTransform;
-        
-        if (this.blendMode !== renderSession.currentBlendMode)
-        {
-            renderSession.currentBlendMode = this.blendMode;
-            context.globalCompositeOperation = PIXI.blendModesCanvas[renderSession.currentBlendMode];
-        }
-
-        if (this._mask)
-        {
-            renderSession.maskManager.pushMask(this._mask, renderSession);
-        }
-
-        var resolution = renderSession.resolution;
-        var tx = (transform.tx * renderSession.resolution) + renderSession.shakeX;
-        var ty = (transform.ty * renderSession.resolution) + renderSession.shakeY;
-
-        context.setTransform(transform.a * resolution,
-                             transform.b * resolution,
-                             transform.c * resolution,
-                             transform.d * resolution,
-                             tx,
-                             ty);
-
-        PIXI.CanvasGraphics.renderGraphics(this, context);
-
-         // simple render children!
-        for (var i = 0; i < this.children.length; i++)
-        {
-            this.children[i]._renderCanvas(renderSession);
-        }
-
-        if (this._mask)
-        {
-            renderSession.maskManager.popMask(renderSession);
-        }
-    }
-};
-
-/**
- * Retrieves the bounds of the graphic shape as a rectangle object
- *
- * @method getBounds
- * @return {Rectangle} the rectangular bounding area
- */
-PIXI.Graphics.prototype.getBounds = function(matrix)
-{
-    if (!this._currentBounds)
-    {
-        //  Return an empty object if the item is a mask!
-        if (!this.renderable)
-        {
-            return PIXI.EmptyRectangle;
-        }
-
-        if (this.dirty)
-        {
-            this.updateLocalBounds();
-            this.webGLDirty = true;
-            this.cachedSpriteDirty = true;
-            this.dirty = false;
-        }
-
-        var bounds = this._localBounds;
-
-        var w0 = bounds.x;
-        var w1 = bounds.width + bounds.x;
-
-        var h0 = bounds.y;
-        var h1 = bounds.height + bounds.y;
-
-        var worldTransform = matrix || this.worldTransform;
-
-        var a = worldTransform.a;
-        var b = worldTransform.b;
-        var c = worldTransform.c;
-        var d = worldTransform.d;
-        var tx = worldTransform.tx;
-        var ty = worldTransform.ty;
-
-        var x1 = a * w1 + c * h1 + tx;
-        var y1 = d * h1 + b * w1 + ty;
-
-        var x2 = a * w0 + c * h1 + tx;
-        var y2 = d * h1 + b * w0 + ty;
-
-        var x3 = a * w0 + c * h0 + tx;
-        var y3 = d * h0 + b * w0 + ty;
-
-        var x4 =  a * w1 + c * h0 + tx;
-        var y4 =  d * h0 + b * w1 + ty;
-
-        var maxX = x1;
-        var maxY = y1;
-
-        var minX = x1;
-        var minY = y1;
-
-        minX = x2 < minX ? x2 : minX;
-        minX = x3 < minX ? x3 : minX;
-        minX = x4 < minX ? x4 : minX;
-
-        minY = y2 < minY ? y2 : minY;
-        minY = y3 < minY ? y3 : minY;
-        minY = y4 < minY ? y4 : minY;
-
-        maxX = x2 > maxX ? x2 : maxX;
-        maxX = x3 > maxX ? x3 : maxX;
-        maxX = x4 > maxX ? x4 : maxX;
-
-        maxY = y2 > maxY ? y2 : maxY;
-        maxY = y3 > maxY ? y3 : maxY;
-        maxY = y4 > maxY ? y4 : maxY;
-
-        this._bounds.x = minX;
-        this._bounds.width = maxX - minX;
-
-        this._bounds.y = minY;
-        this._bounds.height = maxY - minY;
-
-        this._currentBounds = this._bounds;
-    }
-
-    return this._currentBounds;
-
-};
-
-/**
- * Retrieves the non-global local bounds of the graphic shape as a rectangle. The calculation takes all visible children into consideration.
- *
- * @method getLocalBounds
- * @return {Rectangle} The rectangular bounding area
- */
-PIXI.Graphics.prototype.getLocalBounds = function () {
-    var matrixCache = this.worldTransform;
-
-    this.worldTransform = PIXI.identityMatrix;
-
-    for (var i = 0; i < this.children.length; i++) {
-        this.children[i].updateTransform();
-    }
-
-    var bounds = this.getBounds();
-
-    this.worldTransform = matrixCache;
-
-    for (i = 0; i < this.children.length; i++) {
-        this.children[i].updateTransform();
-    }
-
-    return bounds;
-};
-
-/**
-* Tests if a point is inside this graphics object
-*
-* @param point {Point} the point to test
-* @return {boolean} the result of the test
-*/
-PIXI.Graphics.prototype.containsPoint = function( point )
-{
-    this.worldTransform.applyInverse(point,  tempPoint);
-
-    var graphicsData = this.graphicsData;
-
-    for (var i = 0; i < graphicsData.length; i++)
-    {
-        var data = graphicsData[i];
-
-        if (!data.fill)
-        {
-            continue;
-        }
-
-        // only deal with fills..
-        if (data.shape)
-        {
-            if (data.shape.contains(tempPoint.x, tempPoint.y))
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-
-};
-
-/**
- * Update the bounds of the object
- *
- * @method updateLocalBounds
- */
-PIXI.Graphics.prototype.updateLocalBounds = function()
-{
-    var minX = Infinity;
-    var maxX = -Infinity;
-
-    var minY = Infinity;
-    var maxY = -Infinity;
-
-    if (this.graphicsData.length)
-    {
-        var shape, points, x, y, w, h;
-
-        for (var i = 0; i < this.graphicsData.length; i++)
-        {
-            var data = this.graphicsData[i];
-            var type = data.type;
-            var lineWidth = data.lineWidth;
-            shape = data.shape;
-
-            if (type === PIXI.Graphics.RECT || type === PIXI.Graphics.RREC)
-            {
-                x = shape.x - lineWidth / 2;
-                y = shape.y - lineWidth / 2;
-                w = shape.width + lineWidth;
-                h = shape.height + lineWidth;
-
-                minX = x < minX ? x : minX;
-                maxX = x + w > maxX ? x + w : maxX;
-
-                minY = y < minY ? y : minY;
-                maxY = y + h > maxY ? y + h : maxY;
-            }
-            else if (type === PIXI.Graphics.CIRC)
-            {
-                x = shape.x;
-                y = shape.y;
-                w = shape.radius + lineWidth / 2;
-                h = shape.radius + lineWidth / 2;
-
-                minX = x - w < minX ? x - w : minX;
-                maxX = x + w > maxX ? x + w : maxX;
-
-                minY = y - h < minY ? y - h : minY;
-                maxY = y + h > maxY ? y + h : maxY;
-            }
-            else if (type === PIXI.Graphics.ELIP)
-            {
-                x = shape.x;
-                y = shape.y;
-                w = shape.width + lineWidth / 2;
-                h = shape.height + lineWidth / 2;
-
-                minX = x - w < minX ? x - w : minX;
-                maxX = x + w > maxX ? x + w : maxX;
-
-                minY = y - h < minY ? y - h : minY;
-                maxY = y + h > maxY ? y + h : maxY;
-            }
-            else
-            {
-                // POLY - assumes points are sequential, not Point objects
-                points = shape.points;
-
-                for (var j = 0; j < points.length; j++)
-                {
-                    if (points[j] instanceof Phaser.Point)
-                    {
-                        x = points[j].x;
-                        y = points[j].y;
-                    }
-                    else
-                    {
-                        x = points[j];
-                        y = points[j + 1];
-
-                        if (j < points.length - 1)
-                        {
-                            j++;
-                        }
-                    }
-
-                    minX = x - lineWidth < minX ? x - lineWidth : minX;
-                    maxX = x + lineWidth > maxX ? x + lineWidth : maxX;
-
-                    minY = y - lineWidth < minY ? y - lineWidth : minY;
-                    maxY = y + lineWidth > maxY ? y + lineWidth : maxY;
-                }
-            }
-        }
-    }
-    else
-    {
-        minX = 0;
-        maxX = 0;
-        minY = 0;
-        maxY = 0;
-    }
-
-    var padding = this.boundsPadding;
-    
-    this._localBounds.x = minX - padding;
-    this._localBounds.width = (maxX - minX) + padding * 2;
-
-    this._localBounds.y = minY - padding;
-    this._localBounds.height = (maxY - minY) + padding * 2;
-};
-
-/**
- * Generates the cached sprite when the sprite has cacheAsBitmap = true
- *
- * @method _generateCachedSprite
- * @private
- */
-PIXI.Graphics.prototype._generateCachedSprite = function()
-{
-    var bounds = this.getLocalBounds();
-
-    if (!this._cachedSprite)
-    {
-        var canvasBuffer = new PIXI.CanvasBuffer(bounds.width, bounds.height);
-        var texture = PIXI.Texture.fromCanvas(canvasBuffer.canvas);
-        
-        this._cachedSprite = new PIXI.Sprite(texture);
-        this._cachedSprite.buffer = canvasBuffer;
-
-        this._cachedSprite.worldTransform = this.worldTransform;
-    }
-    else
-    {
-        this._cachedSprite.buffer.resize(bounds.width, bounds.height);
-    }
-
-    // leverage the anchor to account for the offset of the element
-    this._cachedSprite.anchor.x = -(bounds.x / bounds.width);
-    this._cachedSprite.anchor.y = -(bounds.y / bounds.height);
-
-    // this._cachedSprite.buffer.context.save();
-    this._cachedSprite.buffer.context.translate(-bounds.x, -bounds.y);
-    
-    // make sure we set the alpha of the graphics to 1 for the render.. 
-    this.worldAlpha = 1;
-
-    // now render the graphic..
-    PIXI.CanvasGraphics.renderGraphics(this, this._cachedSprite.buffer.context);
-    this._cachedSprite.alpha = this.alpha;
-};
-
-/**
- * Updates texture size based on canvas size
- *
- * @method updateCachedSpriteTexture
- * @private
- */
-PIXI.Graphics.prototype.updateCachedSpriteTexture = function()
-{
-    var cachedSprite = this._cachedSprite;
-    var texture = cachedSprite.texture;
-    var canvas = cachedSprite.buffer.canvas;
-
-    texture.baseTexture.width = canvas.width;
-    texture.baseTexture.height = canvas.height;
-    texture.crop.width = texture.frame.width = canvas.width;
-    texture.crop.height = texture.frame.height = canvas.height;
-
-    cachedSprite._width = canvas.width;
-    cachedSprite._height = canvas.height;
-
-    // update the dirty base textures
-    texture.baseTexture.dirty();
-};
-
-/**
- * Destroys a previous cached sprite.
- *
- * @method destroyCachedSprite
- */
-PIXI.Graphics.prototype.destroyCachedSprite = function()
-{
-    this._cachedSprite.texture.destroy(true);
-    this._cachedSprite = null;
-};
-
-/**
- * Draws the given shape to this Graphics object. Can be any of Circle, Rectangle, Ellipse, Line or Polygon.
- *
- * @method drawShape
- * @param {Circle|Rectangle|Ellipse|Line|Polygon} shape The Shape object to draw.
- * @return {GraphicsData} The generated GraphicsData object.
- */
-PIXI.Graphics.prototype.drawShape = function(shape)
-{
-    if (this.currentPath)
-    {
-        // check current path!
-        if (this.currentPath.shape.points.length <= 2)
-        {
-            this.graphicsData.pop();
-        }
-    }
-
-    this.currentPath = null;
-
-    //  Handle mixed-type polygons
-    if (shape instanceof Phaser.Polygon)
-    {
-        shape = shape.clone();
-        shape.flatten();
-    }
-
-    var data = new PIXI.GraphicsData(this.lineWidth, this.lineColor, this.lineAlpha, this.fillColor, this.fillAlpha, this.filling, shape);
-    
-    this.graphicsData.push(data);
-
-    if (data.type === PIXI.Graphics.POLY)
-    {
-        data.shape.closed = this.filling;
-        this.currentPath = data;
-    }
-
-    this.dirty = true;
-    this._boundsDirty = true;
-
-    return data;
-
-};
-
-/**
- * When cacheAsBitmap is set to true the graphics object will be rendered as if it was a sprite.
- * This is useful if your graphics element does not change often, as it will speed up the rendering of the object in exchange for taking up texture memory.
- * It is also useful if you need the graphics object to be anti-aliased, because it will be rendered using canvas.
- * This is not recommended if you are constantly redrawing the graphics element.
- *
- * @property cacheAsBitmap
- * @type Boolean
- * @default false
- * @private
- */
-Object.defineProperty(PIXI.Graphics.prototype, "cacheAsBitmap", {
-
-    get: function() {
-        return  this._cacheAsBitmap;
-    },
-
-    set: function(value) {
-
-        this._cacheAsBitmap = value;
-
-        if (this._cacheAsBitmap)
-        {
-            this._generateCachedSprite();
-        }
-        else
-        {
-            this.destroyCachedSprite();
-        }
-
-        this.dirty = true;
-        this.webGLDirty = true;
-
-    }
-});
-
-/**
- * A GraphicsData object.
- * 
- * @class GraphicsData
- * @constructor
-PIXI.GraphicsData = function(lineWidth, lineColor, lineAlpha, fillColor, fillAlpha, fill, shape)
-{
-    this.lineWidth = lineWidth;
-    this.lineColor = lineColor;
-    this.lineAlpha = lineAlpha;
-    this._lineTint = lineColor;
-
-    this.fillColor = fillColor;
-    this.fillAlpha = fillAlpha;
-    this._fillTint = fillColor;
-    this.fill = fill;
-
-    this.shape = shape;
-    this.type = shape.type;
-};
- */
-
-/**
- * A GraphicsData object.
- *
- * @class
- * @memberof PIXI
- * @param lineWidth {number} the width of the line to draw
- * @param lineColor {number} the color of the line to draw
- * @param lineAlpha {number} the alpha of the line to draw
- * @param fillColor {number} the color of the fill
- * @param fillAlpha {number} the alpha of the fill
- * @param fill      {boolean} whether or not the shape is filled with a colour
- * @param shape     {Circle|Rectangle|Ellipse|Line|Polygon} The shape object to draw.
- */
-
-PIXI.GraphicsData = function(lineWidth, lineColor, lineAlpha, fillColor, fillAlpha, fill, shape) {
-
-    /*
-     * @member {number} the width of the line to draw
-     */
-    this.lineWidth = lineWidth;
-
-    /*
-     * @member {number} the color of the line to draw
-     */
-    this.lineColor = lineColor;
-
-    /*
-     * @member {number} the alpha of the line to draw
-     */
-    this.lineAlpha = lineAlpha;
-
-    /*
-     * @member {number} cached tint of the line to draw
-     */
-    this._lineTint = lineColor;
-
-    /*
-     * @member {number} the color of the fill
-     */
-    this.fillColor = fillColor;
-
-    /*
-     * @member {number} the alpha of the fill
-     */
-    this.fillAlpha = fillAlpha;
-
-    /*
-     * @member {number} cached tint of the fill
-     */
-    this._fillTint = fillColor;
-
-    /*
-     * @member {boolean} whether or not the shape is filled with a color
-     */
-    this.fill = fill;
-
-    /*
-     * @member {Circle|Rectangle|Ellipse|Line|Polygon} The shape object to draw.
-     */
-    this.shape = shape;
-
-    /*
-     * @member {number} The type of the shape, see the Const.Shapes file for all the existing types,
-     */
-    this.type = shape.type;
-
-};
-
-PIXI.GraphicsData.prototype.constructor = PIXI.GraphicsData;
-
-/**
- * Creates a new GraphicsData object with the same values as this one.
- *
- * @return {GraphicsData}
- */
-PIXI.GraphicsData.prototype.clone = function() {
-
-    return new GraphicsData(
-        this.lineWidth,
-        this.lineColor,
-        this.lineAlpha,
-        this.fillColor,
-        this.fillAlpha,
-        this.fill,
-        this.shape
-    );
-
-};
-/*
-Copyright (c) 2016, Mapbox
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-*/
-
-/**
-* @class EarCut
-*/
-PIXI.EarCut = {};
-
-PIXI.EarCut.Triangulate = function (data, holeIndices, dim) {
-
-    dim = dim || 2;
-
-    var hasHoles = holeIndices && holeIndices.length,
-        outerLen = hasHoles ? holeIndices[0] * dim : data.length,
-        outerNode = PIXI.EarCut.linkedList(data, 0, outerLen, dim, true),
-        triangles = [];
-
-    if (!outerNode) return triangles;
-
-    var minX, minY, maxX, maxY, x, y, size;
-
-    if (hasHoles) outerNode = PIXI.EarCut.eliminateHoles(data, holeIndices, outerNode, dim);
-
-    // if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
-    if (data.length > 80 * dim) {
-        minX = maxX = data[0];
-        minY = maxY = data[1];
-
-        for (var i = dim; i < outerLen; i += dim) {
-            x = data[i];
-            y = data[i + 1];
-            if (x < minX) minX = x;
-            if (y < minY) minY = y;
-            if (x > maxX) maxX = x;
-            if (y > maxY) maxY = y;
-        }
-
-        // minX, minY and size are later used to transform coords into integers for z-order calculation
-        size = Math.max(maxX - minX, maxY - minY);
-    }
-
-    PIXI.EarCut.earcutLinked(outerNode, triangles, dim, minX, minY, size);
-
-    return triangles;
-}
-
-// create a circular doubly linked list from polygon points in the specified winding order
-
-PIXI.EarCut.linkedList = function (data, start, end, dim, clockwise) {
-    var sum = 0,
-        i, j, last;
-
-    // calculate original winding order of a polygon ring
-    for (i = start, j = end - dim; i < end; i += dim) {
-        sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
-        j = i;
-    }
-
-    // link points into circular doubly-linked list in the specified winding order
-    if (clockwise === (sum > 0)) {
-        for (i = start; i < end; i += dim) last = PIXI.EarCut.insertNode(i, data[i], data[i + 1], last);
-    } else {
-        for (i = end - dim; i >= start; i -= dim) last = PIXI.EarCut.insertNode(i, data[i], data[i + 1], last);
-    }
-
-    return last;
-}
-
-// eliminate colinear or duplicate points
-
-PIXI.EarCut.filterPoints = function (start, end) {
-    if (!start) return start;
-    if (!end) end = start;
-
-    var p = start,
-        again;
-    do {
-        again = false;
-
-        if (!p.steiner && (PIXI.EarCut.equals(p, p.next) || PIXI.EarCut.area(p.prev, p, p.next) === 0)) {
-            PIXI.EarCut.removeNode(p);
-            p = end = p.prev;
-            if (p === p.next) return null;
-            again = true;
-
-        } else {
-            p = p.next;
-        }
-    } while (again || p !== end);
-
-    return end;
-}
-
-// main ear slicing loop which triangulates a polygon (given as a linked list)
-
-PIXI.EarCut.earcutLinked = function (ear, triangles, dim, minX, minY, size, pass) {
-    if (!ear) return;
-
-    // interlink polygon nodes in z-order
-    if (!pass && size) PIXI.EarCut.indexCurve(ear, minX, minY, size);
-
-    var stop = ear,
-        prev, next;
-
-    // iterate through ears, slicing them one by one
-    while (ear.prev !== ear.next) {
-        prev = ear.prev;
-        next = ear.next;
-
-        if (size ? PIXI.EarCut.isEarHashed(ear, minX, minY, size) : PIXI.EarCut.isEar(ear)) {
-            // cut off the triangle
-            triangles.push(prev.i / dim);
-            triangles.push(ear.i / dim);
-            triangles.push(next.i / dim);
-
-            PIXI.EarCut.removeNode(ear);
-
-            // skipping the next vertice leads to less sliver triangles
-            ear = next.next;
-            stop = next.next;
-
-            continue;
-        }
-
-        ear = next;
-
-        // if we looped through the whole remaining polygon and can't find any more ears
-        if (ear === stop) {
-            // try filtering points and slicing again
-            if (!pass) {
-                PIXI.EarCut.earcutLinked(PIXI.EarCut.filterPoints(ear), triangles, dim, minX, minY, size, 1);
-
-                // if this didn't work, try curing all small self-intersections locally
-            } else if (pass === 1) {
-                ear = PIXI.EarCut.cureLocalIntersections(ear, triangles, dim);
-                PIXI.EarCut.earcutLinked(ear, triangles, dim, minX, minY, size, 2);
-
-                // as a last resort, try splitting the remaining polygon into two
-            } else if (pass === 2) {
-                PIXI.EarCut.splitEarcut(ear, triangles, dim, minX, minY, size);
-            }
-
-            break;
-        }
-    }
-}
-
-// check whether a polygon node forms a valid ear with adjacent nodes
-
-PIXI.EarCut.isEar = function (ear) {
-    var a = ear.prev,
-        b = ear,
-        c = ear.next;
-
-    if (PIXI.EarCut.area(a, b, c) >= 0) return false; // reflex, can't be an ear
-
-    // now make sure we don't have other points inside the potential ear
-    var p = ear.next.next;
-
-    while (p !== ear.prev) {
-        if (PIXI.EarCut.pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
-            PIXI.EarCut.area(p.prev, p, p.next) >= 0) return false;
-        p = p.next;
-    }
-
-    return true;
-}
-
-PIXI.EarCut.isEarHashed = function (ear, minX, minY, size) {
-    var a = ear.prev,
-        b = ear,
-        c = ear.next;
-
-    if (PIXI.EarCut.area(a, b, c) >= 0) return false; // reflex, can't be an ear
-
-    // triangle bbox; min & max are calculated like this for speed
-    var minTX = a.x < b.x ? (a.x < c.x ? a.x : c.x) : (b.x < c.x ? b.x : c.x),
-        minTY = a.y < b.y ? (a.y < c.y ? a.y : c.y) : (b.y < c.y ? b.y : c.y),
-        maxTX = a.x > b.x ? (a.x > c.x ? a.x : c.x) : (b.x > c.x ? b.x : c.x),
-        maxTY = a.y > b.y ? (a.y > c.y ? a.y : c.y) : (b.y > c.y ? b.y : c.y);
-
-    // z-order range for the current triangle bbox;
-    var minZ = PIXI.EarCut.zOrder(minTX, minTY, minX, minY, size),
-        maxZ = PIXI.EarCut.zOrder(maxTX, maxTY, minX, minY, size);
-
-    // first look for points inside the triangle in increasing z-order
-    var p = ear.nextZ;
-
-    while (p && p.z <= maxZ) {
-        if (p !== ear.prev && p !== ear.next &&
-            PIXI.EarCut.pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
-            PIXI.EarCut.area(p.prev, p, p.next) >= 0) return false;
-        p = p.nextZ;
-    }
-
-    // then look for points in decreasing z-order
-    p = ear.prevZ;
-
-    while (p && p.z >= minZ) {
-        if (p !== ear.prev && p !== ear.next &&
-            PIXI.EarCut.pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
-            PIXI.EarCut.area(p.prev, p, p.next) >= 0) return false;
-        p = p.prevZ;
-    }
-
-    return true;
-}
-
-// go through all polygon nodes and cure small local self-intersections
-
-PIXI.EarCut.cureLocalIntersections = function (start, triangles, dim) {
-    var p = start;
-    do {
-        var a = p.prev,
-            b = p.next.next;
-
-        // a self-intersection where edge (v[i-1],v[i]) intersects (v[i+1],v[i+2])
-        if (PIXI.EarCut.intersects(a, p, p.next, b) && PIXI.EarCut.locallyInside(a, b) && PIXI.EarCut.locallyInside(b, a)) {
-
-            triangles.push(a.i / dim);
-            triangles.push(p.i / dim);
-            triangles.push(b.i / dim);
-
-            // remove two nodes involved
-            PIXI.EarCut.removeNode(p);
-            PIXI.EarCut.removeNode(p.next);
-
-            p = start = b;
-        }
-        p = p.next;
-    } while (p !== start);
-
-    return p;
-}
-
-// try splitting polygon into two and triangulate them independently
-
-PIXI.EarCut.splitEarcut = function (start, triangles, dim, minX, minY, size) {
-    // look for a valid diagonal that divides the polygon into two
-    var a = start;
-    do {
-        var b = a.next.next;
-        while (b !== a.prev) {
-            if (a.i !== b.i && PIXI.EarCut.isValidDiagonal(a, b)) {
-                // split the polygon in two by the diagonal
-                var c = PIXI.EarCut.splitPolygon(a, b);
-
-                // filter colinear points around the cuts
-                a = PIXI.EarCut.filterPoints(a, a.next);
-                c = PIXI.EarCut.filterPoints(c, c.next);
-
-                // run earcut on each half
-                PIXI.EarCut.earcutLinked(a, triangles, dim, minX, minY, size);
-                PIXI.EarCut.earcutLinked(c, triangles, dim, minX, minY, size);
-                return;
-            }
-            b = b.next;
-        }
-        a = a.next;
-    } while (a !== start);
-}
-
-// link every hole into the outer loop, producing a single-ring polygon without holes
-
-PIXI.EarCut.eliminateHoles = function (data, holeIndices, outerNode, dim) {
-    var queue = [],
-        i, len, start, end, list;
-
-    for (i = 0, len = holeIndices.length; i < len; i++) {
-        start = holeIndices[i] * dim;
-        end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-        list = PIXI.EarCut.linkedList(data, start, end, dim, false);
-        if (list === list.next) list.steiner = true;
-        queue.push(PIXI.EarCut.getLeftmost(list));
-    }
-
-    queue.sort(compareX);
-
-    // process holes from left to right
-    for (i = 0; i < queue.length; i++) {
-        PIXI.EarCut.eliminateHole(queue[i], outerNode);
-        outerNode = PIXI.EarCut.filterPoints(outerNode, outerNode.next);
-    }
-
-    return outerNode;
-}
-
-PIXI.EarCut.compareX = function (a, b) {
-    return a.x - b.x;
-}
-
-// find a bridge between vertices that connects hole with an outer ring and and link it
-
-PIXI.EarCut.eliminateHole = function (hole, outerNode) {
-    outerNode = PIXI.EarCut.findHoleBridge(hole, outerNode);
-    if (outerNode) {
-        var b = PIXI.EarCut.splitPolygon(outerNode, hole);
-        PIXI.EarCut.filterPoints(b, b.next);
-    }
-}
-
-// David Eberly's algorithm for finding a bridge between hole and outer polygon
-
-PIXI.EarCut.findHoleBridge = function (hole, outerNode) {
-    var p = outerNode,
-        hx = hole.x,
-        hy = hole.y,
-        qx = -Infinity,
-        m;
-
-    // find a segment intersected by a ray from the hole's leftmost point to the left;
-    // segment's endpoint with lesser x will be potential connection point
-    do {
-        if (hy <= p.y && hy >= p.next.y) {
-            var x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
-            if (x <= hx && x > qx) {
-                qx = x;
-                m = p.x < p.next.x ? p : p.next;
-            }
-        }
-        p = p.next;
-    } while (p !== outerNode);
-
-    if (!m) return null;
-
-    if (hole.x === m.x) return m.prev; // hole touches outer segment; pick lower endpoint
-
-    // look for points inside the triangle of hole point, segment intersection and endpoint;
-    // if there are no points found, we have a valid connection;
-    // otherwise choose the point of the minimum angle with the ray as connection point
-
-    var stop = m,
-        tanMin = Infinity,
-        tan;
-
-    p = m.next;
-
-    while (p !== stop) {
-        if (hx >= p.x && p.x >= m.x &&
-            PIXI.EarCut.pointInTriangle(hy < m.y ? hx : qx, hy, m.x, m.y, hy < m.y ? qx : hx, hy, p.x, p.y)) {
-
-            tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
-
-            if ((tan < tanMin || (tan === tanMin && p.x > m.x)) && PIXI.EarCut.locallyInside(p, hole)) {
-                m = p;
-                tanMin = tan;
-            }
-        }
-
-        p = p.next;
-    }
-
-    return m;
-}
-
-// interlink polygon nodes in z-order
-
-PIXI.EarCut.indexCurve = function (start, minX, minY, size) {
-    var p = start;
-    do {
-        if (p.z === null) p.z = PIXI.EarCut.zOrder(p.x, p.y, minX, minY, size);
-        p.prevZ = p.prev;
-        p.nextZ = p.next;
-        p = p.next;
-    } while (p !== start);
-
-    p.prevZ.nextZ = null;
-    p.prevZ = null;
-
-    PIXI.EarCut.sortLinked(p);
-}
-
-// Simon Tatham's linked list merge sort algorithm
-// http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-
-PIXI.EarCut.sortLinked = function (list) {
-    var i, p, q, e, tail, numMerges, pSize, qSize,
-        inSize = 1;
-
-    do {
-        p = list;
-        list = null;
-        tail = null;
-        numMerges = 0;
-
-        while (p) {
-            numMerges++;
-            q = p;
-            pSize = 0;
-            for (i = 0; i < inSize; i++) {
-                pSize++;
-                q = q.nextZ;
-                if (!q) break;
-            }
-
-            qSize = inSize;
-
-            while (pSize > 0 || (qSize > 0 && q)) {
-
-                if (pSize === 0) {
-                    e = q;
-                    q = q.nextZ;
-                    qSize--;
-                } else if (qSize === 0 || !q) {
-                    e = p;
-                    p = p.nextZ;
-                    pSize--;
-                } else if (p.z <= q.z) {
-                    e = p;
-                    p = p.nextZ;
-                    pSize--;
-                } else {
-                    e = q;
-                    q = q.nextZ;
-                    qSize--;
-                }
-
-                if (tail) tail.nextZ = e;
-                else list = e;
-
-                e.prevZ = tail;
-                tail = e;
-            }
-
-            p = q;
-        }
-
-        tail.nextZ = null;
-        inSize *= 2;
-
-    } while (numMerges > 1);
-
-    return list;
-}
-
-// z-order of a point given coords and size of the data bounding box
-
-PIXI.EarCut.zOrder = function (x, y, minX, minY, size) {
-    // coords are transformed into non-negative 15-bit integer range
-    x = 32767 * (x - minX) / size;
-    y = 32767 * (y - minY) / size;
-
-    x = (x | (x << 8)) & 0x00FF00FF;
-    x = (x | (x << 4)) & 0x0F0F0F0F;
-    x = (x | (x << 2)) & 0x33333333;
-    x = (x | (x << 1)) & 0x55555555;
-
-    y = (y | (y << 8)) & 0x00FF00FF;
-    y = (y | (y << 4)) & 0x0F0F0F0F;
-    y = (y | (y << 2)) & 0x33333333;
-    y = (y | (y << 1)) & 0x55555555;
-
-    return x | (y << 1);
-}
-
-// find the leftmost node of a polygon ring
-
-PIXI.EarCut.getLeftmost = function (start) {
-    var p = start,
-        leftmost = start;
-    do {
-        if (p.x < leftmost.x) leftmost = p;
-        p = p.next;
-    } while (p !== start);
-
-    return leftmost;
-}
-
-// check if a point lies within a convex triangle
-
-PIXI.EarCut.pointInTriangle = function (ax, ay, bx, by, cx, cy, px, py) {
-    return (cx - px) * (ay - py) - (ax - px) * (cy - py) >= 0 &&
-        (ax - px) * (by - py) - (bx - px) * (ay - py) >= 0 &&
-        (bx - px) * (cy - py) - (cx - px) * (by - py) >= 0;
-}
-
-// check if a diagonal between two polygon nodes is valid (lies in polygon interior)
-
-PIXI.EarCut.isValidDiagonal = function (a, b) {
-    return PIXI.EarCut.equals(a, b) || a.next.i !== b.i && a.prev.i !== b.i && !PIXI.EarCut.intersectsPolygon(a, b) &&
-        PIXI.EarCut.locallyInside(a, b) && PIXI.EarCut.locallyInside(b, a) && PIXI.EarCut.middleInside(a, b);
-}
-
-// signed area of a triangle
-
-PIXI.EarCut.area = function (p, q, r) {
-    return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-}
-
-// check if two points are equal
-
-PIXI.EarCut.equals = function (p1, p2) {
-    return p1.x === p2.x && p1.y === p2.y;
-}
-
-// check if two segments intersect
-
-PIXI.EarCut.intersects = function (p1, q1, p2, q2) {
-    return PIXI.EarCut.area(p1, q1, p2) > 0 !== PIXI.EarCut.area(p1, q1, q2) > 0 &&
-        PIXI.EarCut.area(p2, q2, p1) > 0 !== PIXI.EarCut.area(p2, q2, q1) > 0;
-}
-
-// check if a polygon diagonal intersects any polygon segments
-
-PIXI.EarCut.intersectsPolygon = function (a, b) {
-    var p = a;
-    do {
-        if (p.i !== a.i && p.next.i !== a.i && p.i !== b.i && p.next.i !== b.i &&
-            PIXI.EarCut.intersects(p, p.next, a, b)) return true;
-        p = p.next;
-    } while (p !== a);
-
-    return false;
-}
-
-// check if a polygon diagonal is locally inside the polygon
-
-PIXI.EarCut.locallyInside = function (a, b) {
-    return PIXI.EarCut.area(a.prev, a, a.next) < 0 ?
-        PIXI.EarCut.area(a, b, a.next) >= 0 && PIXI.EarCut.area(a, a.prev, b) >= 0 :
-        PIXI.EarCut.area(a, b, a.prev) < 0 || PIXI.EarCut.area(a, a.next, b) < 0;
-}
-
-// check if the middle point of a polygon diagonal is inside the polygon
-
-PIXI.EarCut.middleInside = function (a, b) {
-    var p = a,
-        inside = false,
-        px = (a.x + b.x) / 2,
-        py = (a.y + b.y) / 2;
-    do {
-        if (((p.y > py) !== (p.next.y > py)) && (px < (p.next.x - p.x) * (py - p.y) / (p.next.y - p.y) + p.x))
-            inside = !inside;
-        p = p.next;
-    } while (p !== a);
-
-    return inside;
-}
-
-// link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
-// if one belongs to the outer ring and another to a hole, it merges it into a single ring
-
-PIXI.EarCut.splitPolygon = function (a, b) {
-    var a2 = new PIXI.EarCut.Node(a.i, a.x, a.y),
-        b2 = new PIXI.EarCut.Node(b.i, b.x, b.y),
-        an = a.next,
-        bp = b.prev;
-
-    a.next = b;
-    b.prev = a;
-
-    a2.next = an;
-    an.prev = a2;
-
-    b2.next = a2;
-    a2.prev = b2;
-
-    bp.next = b2;
-    b2.prev = bp;
-
-    return b2;
-}
-
-// create a node and optionally link it with previous one (in a circular doubly linked list)
-
-PIXI.EarCut.insertNode = function (i, x, y, last) {
-    var p = new PIXI.EarCut.Node(i, x, y);
-
-    if (!last) {
-        p.prev = p;
-        p.next = p;
-
-    } else {
-        p.next = last.next;
-        p.prev = last;
-        last.next.prev = p;
-        last.next = p;
-    }
-    return p;
-}
-
-PIXI.EarCut.removeNode = function (p) {
-    p.next.prev = p.prev;
-    p.prev.next = p.next;
-
-    if (p.prevZ) p.prevZ.nextZ = p.nextZ;
-    if (p.nextZ) p.nextZ.prevZ = p.prevZ;
-}
-
-PIXI.EarCut.Node = function (i, x, y) {
-    // vertice index in coordinates array
-    this.i = i;
-
-    // vertex coordinates
-    this.x = x;
-    this.y = y;
-
-    // previous and next vertice nodes in a polygon ring
-    this.prev = null;
-    this.next = null;
-
-    // z-order curve value
-    this.z = null;
-
-    // previous and next nodes in z-order
-    this.prevZ = null;
-    this.nextZ = null;
-
-    // indicates whether this is a steiner point
-    this.steiner = false;
-}
-
-/**
- * @author Mat Groves http://matgroves.com/ @Doormat23
- */
-
-/**
  * A set of functions used by the webGL renderer to draw the primitive graphics data
  *
  * @class WebGLGraphics
@@ -31958,7 +30173,7 @@ PIXI.WebGLGraphics.renderGraphics = function(graphics, renderSession)//projectio
             gl.uniform2f(shader.projectionVector, projection.x, -projection.y);
             gl.uniform2f(shader.offsetVector, -offset.x, -offset.y);
 
-            gl.uniform3fv(shader.tintColor, PIXI.hex2rgb(graphics.tint));
+            gl.uniform3fv(shader.tintColor, Phaser.Color.hexToRGBArray(graphics.tint));
 
             gl.uniform1f(shader.alpha, graphics.worldAlpha);
             
@@ -32023,7 +30238,7 @@ PIXI.WebGLGraphics.updateGraphics = function(graphics, gl)
     {
         var data = graphics.graphicsData[i];
 
-        if(data.type === PIXI.Graphics.POLY)
+        if (data.type === Phaser.POLYGON)
         {
             // need to add the points the the graphics object..
             data.points = data.shape.points.slice();
@@ -32075,15 +30290,15 @@ PIXI.WebGLGraphics.updateGraphics = function(graphics, gl)
         {
             webGLData = PIXI.WebGLGraphics.switchMode(webGL, 0);
             
-            if(data.type === PIXI.Graphics.RECT)
+            if (data.type === Phaser.RECTANGLE)
             {
                 PIXI.WebGLGraphics.buildRectangle(data, webGLData);
             }
-            else if(data.type === PIXI.Graphics.CIRC || data.type === PIXI.Graphics.ELIP)
+            else if (data.type === Phaser.CIRCLE || data.type === Phaser.ELLIPSE)
             {
                 PIXI.WebGLGraphics.buildCircle(data, webGLData);
             }
-            else if(data.type === PIXI.Graphics.RREC)
+            else if (data.type === Phaser.ROUNDEDRECTANGLE)
             {
                 PIXI.WebGLGraphics.buildRoundedRectangle(data, webGLData);
             }
@@ -32156,7 +30371,7 @@ PIXI.WebGLGraphics.buildRectangle = function(graphicsData, webGLData)
 
     if(graphicsData.fill)
     {
-        var color = PIXI.hex2rgb(graphicsData.fillColor);
+        var color = Phaser.Color.hexToRGBArray(graphicsData.fillColor);
         var alpha = graphicsData.fillAlpha;
 
         var r = color[0] * alpha;
@@ -32229,7 +30444,7 @@ PIXI.WebGLGraphics.buildRoundedRectangle = function(graphicsData, webGLData)
     recPoints = recPoints.concat(PIXI.WebGLGraphics.quadraticBezierCurve(x + radius, y, x, y, x, y + radius));
 
     if (graphicsData.fill) {
-        var color = PIXI.hex2rgb(graphicsData.fillColor);
+        var color = Phaser.Color.hexToRGBArray(graphicsData.fillColor);
         var alpha = graphicsData.fillAlpha;
 
         var r = color[0] * alpha;
@@ -32241,7 +30456,7 @@ PIXI.WebGLGraphics.buildRoundedRectangle = function(graphicsData, webGLData)
 
         var vecPos = verts.length / 6;
 
-        var triangles = PIXI.EarCut.Triangulate(recPoints, null, 2);
+        var triangles = Phaser.EarCut.Triangulate(recPoints, null, 2);
 
         var i = 0;
 
@@ -32343,7 +30558,7 @@ PIXI.WebGLGraphics.buildCircle = function(graphicsData, webGLData)
     var height;
     
     // TODO - bit hacky??
-    if(graphicsData.type === PIXI.Graphics.CIRC)
+    if (graphicsData.type === Phaser.CIRCLE)
     {
         width = circleData.radius;
         height = circleData.radius;
@@ -32361,7 +30576,7 @@ PIXI.WebGLGraphics.buildCircle = function(graphicsData, webGLData)
 
     if(graphicsData.fill)
     {
-        var color = PIXI.hex2rgb(graphicsData.fillColor);
+        var color = Phaser.Color.hexToRGBArray(graphicsData.fillColor);
         var alpha = graphicsData.fillAlpha;
 
         var r = color[0] * alpha;
@@ -32463,7 +30678,7 @@ PIXI.WebGLGraphics.buildLine = function(graphicsData, webGLData)
     var width = graphicsData.lineWidth / 2;
 
     // sort color
-    var color = PIXI.hex2rgb(graphicsData.lineColor);
+    var color = Phaser.Color.hexToRGBArray(graphicsData.lineColor);
     var alpha = graphicsData.lineAlpha;
     var r = color[0] * alpha;
     var g = color[1] * alpha;
@@ -32638,7 +30853,7 @@ PIXI.WebGLGraphics.buildComplexPoly = function(graphicsData, webGLData)
     var indices = webGLData.indices;
     webGLData.points = points;
     webGLData.alpha = graphicsData.fillAlpha;
-    webGLData.color = PIXI.hex2rgb(graphicsData.fillColor);
+    webGLData.color = Phaser.Color.hexToRGBArray(graphicsData.fillColor);
 
     /*
         calclate the bounds..
@@ -32702,13 +30917,13 @@ PIXI.WebGLGraphics.buildPoly = function(graphicsData, webGLData)
     var length = points.length / 2;
 
     // sort color
-    var color = PIXI.hex2rgb(graphicsData.fillColor);
+    var color = Phaser.Color.hexToRGBArray(graphicsData.fillColor);
     var alpha = graphicsData.fillAlpha;
     var r = color[0] * alpha;
     var g = color[1] * alpha;
     var b = color[2] * alpha;
 
-    var triangles = PIXI.EarCut.Triangulate(points, null, 2);
+    var triangles = Phaser.EarCut.Triangulate(points, null, 2);
 
     if(!triangles)return false;
 
@@ -32773,12 +30988,12 @@ PIXI.WebGLGraphicsData.prototype.upload = function()
     var gl = this.gl;
 
 //    this.lastIndex = graphics.graphicsData.length;
-    this.glPoints = new PIXI.Float32Array(this.points);
+    this.glPoints = new Float32Array(this.points);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.glPoints, gl.STATIC_DRAW);
 
-    this.glIndicies = new PIXI.Uint16Array(this.indices);
+    this.glIndicies = new Uint16Array(this.indices);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.glIndicies, gl.STATIC_DRAW);
@@ -32829,7 +31044,7 @@ PIXI.CanvasGraphics.renderGraphics = function(graphics, context)
 
         context.lineWidth = data.lineWidth;
 
-        if (data.type === PIXI.Graphics.POLY)
+        if (data.type === Phaser.POLYGON)
         {
             context.beginPath();
 
@@ -32867,7 +31082,7 @@ PIXI.CanvasGraphics.renderGraphics = function(graphics, context)
                 context.stroke();
             }
         }
-        else if (data.type === PIXI.Graphics.RECT)
+        else if (data.type === Phaser.RECTANGLE)
         {
             if (data.fillColor || data.fillColor === 0)
             {
@@ -32883,7 +31098,7 @@ PIXI.CanvasGraphics.renderGraphics = function(graphics, context)
                 context.strokeRect(shape.x, shape.y, shape.width, shape.height);
             }
         }
-        else if (data.type === PIXI.Graphics.CIRC)
+        else if (data.type === Phaser.CIRCLE)
         {
             // TODO - need to be Undefined!
             context.beginPath();
@@ -32904,7 +31119,7 @@ PIXI.CanvasGraphics.renderGraphics = function(graphics, context)
                 context.stroke();
             }
         }
-        else if (data.type === PIXI.Graphics.ELIP)
+        else if (data.type === Phaser.ELLIPSE)
         {
             // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
 
@@ -32946,7 +31161,7 @@ PIXI.CanvasGraphics.renderGraphics = function(graphics, context)
                 context.stroke();
             }
         }
-        else if (data.type === PIXI.Graphics.RREC)
+        else if (data.type === Phaser.ROUNDEDRECTANGLE)
         {
             var rx = shape.x;
             var ry = shape.y;
@@ -33012,7 +31227,7 @@ PIXI.CanvasGraphics.renderGraphicsMask = function(graphics, context)
         var data = graphics.graphicsData[i];
         var shape = data.shape;
 
-        if (data.type === PIXI.Graphics.POLY)
+        if (data.type === Phaser.POLYGON)
         {
 
             var points = shape.points;
@@ -33031,18 +31246,18 @@ PIXI.CanvasGraphics.renderGraphicsMask = function(graphics, context)
             }
 
         }
-        else if (data.type === PIXI.Graphics.RECT)
+        else if (data.type === Phaser.RECTANGLE)
         {
             context.rect(shape.x, shape.y, shape.width, shape.height);
             context.closePath();
         }
-        else if (data.type === PIXI.Graphics.CIRC)
+        else if (data.type === Phaser.CIRCLE)
         {
             // TODO - need to be Undefined!
             context.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
             context.closePath();
         }
-        else if (data.type === PIXI.Graphics.ELIP)
+        else if (data.type === Phaser.ELLIPSE)
         {
 
             // ellipse code taken from: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
@@ -33068,7 +31283,7 @@ PIXI.CanvasGraphics.renderGraphicsMask = function(graphics, context)
             context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
             context.closePath();
         }
-        else if (data.type === PIXI.Graphics.RREC)
+        else if (data.type === Phaser.ROUNDEDRECTANGLE)
         {
 
             var rx = shape.x;
@@ -33120,6 +31335,95 @@ PIXI.CanvasGraphics.updateGraphicsTint = function(graphics)
 };
 
 /**
+ * A GraphicsData object.
+ *
+ * @class
+ * @memberof PIXI
+ * @param lineWidth {number} the width of the line to draw
+ * @param lineColor {number} the color of the line to draw
+ * @param lineAlpha {number} the alpha of the line to draw
+ * @param fillColor {number} the color of the fill
+ * @param fillAlpha {number} the alpha of the fill
+ * @param fill      {boolean} whether or not the shape is filled with a colour
+ * @param shape     {Circle|Rectangle|Ellipse|Line|Polygon} The shape object to draw.
+ */
+
+Phaser.GraphicsData = function (lineWidth, lineColor, lineAlpha, fillColor, fillAlpha, fill, shape) {
+
+    /*
+     * @member {number} the width of the line to draw
+     */
+    this.lineWidth = lineWidth;
+
+    /*
+     * @member {number} the color of the line to draw
+     */
+    this.lineColor = lineColor;
+
+    /*
+     * @member {number} the alpha of the line to draw
+     */
+    this.lineAlpha = lineAlpha;
+
+    /*
+     * @member {number} cached tint of the line to draw
+     */
+    this._lineTint = lineColor;
+
+    /*
+     * @member {number} the color of the fill
+     */
+    this.fillColor = fillColor;
+
+    /*
+     * @member {number} the alpha of the fill
+     */
+    this.fillAlpha = fillAlpha;
+
+    /*
+     * @member {number} cached tint of the fill
+     */
+    this._fillTint = fillColor;
+
+    /*
+     * @member {boolean} whether or not the shape is filled with a color
+     */
+    this.fill = fill;
+
+    /*
+     * @member {Circle|Rectangle|Ellipse|Line|Polygon} The shape object to draw.
+     */
+    this.shape = shape;
+
+    /*
+     * @member {number} The type of the shape, see the Const.Shapes file for all the existing types,
+     */
+    this.type = shape.type;
+
+};
+
+Phaser.GraphicsData.prototype.constructor = Phaser.GraphicsData;
+
+/**
+ * Creates a new GraphicsData object with the same values as this one.
+ *
+ * @return {GraphicsData}
+ */
+Phaser.GraphicsData.prototype.clone = function () {
+
+    return new Phaser.GraphicsData(
+        this.lineWidth,
+        this.lineColor,
+        this.lineAlpha,
+        this.fillColor,
+        this.fillAlpha,
+        this.fill,
+        this.shape
+    );
+
+};
+
+/**
 * @author       Richard Davey <rich@photonstorm.com>
 * @copyright    2016 Photon Storm Ltd.
 * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
@@ -33152,7 +31456,7 @@ PIXI.CanvasGraphics.updateGraphicsTint = function(graphics)
 *
 * @class Phaser.Graphics
 * @constructor
-* @extends PIXI.Graphics
+* @extends PIXI.DisplayObjectContainer
 * @extends Phaser.Component.Core
 * @extends Phaser.Component.Angle
 * @extends Phaser.Component.AutoCull
@@ -33191,13 +31495,140 @@ Phaser.Graphics = function (game, x, y) {
     */
     this.anchor = new Phaser.Point();
 
-    PIXI.Graphics.call(this);
+    PIXI.DisplayObjectContainer.call(this);
+
+    this.renderable = true;
+
+    /**
+     * The alpha value used when filling the Graphics object.
+     *
+     * @property fillAlpha
+     * @type Number
+     */
+    this.fillAlpha = 1;
+
+    /**
+     * The width (thickness) of any lines drawn.
+     *
+     * @property lineWidth
+     * @type Number
+     */
+    this.lineWidth = 0;
+
+    /**
+     * The color of any lines drawn.
+     *
+     * @property lineColor
+     * @type String
+     * @default 0
+     */
+    this.lineColor = 0;
+
+    /**
+     * Graphics data
+     *
+     * @property graphicsData
+     * @type Array
+     * @private
+     */
+    this.graphicsData = [];
+
+    /**
+     * The tint applied to the graphic shape. This is a hex value. Apply a value of 0xFFFFFF to reset the tint.
+     *
+     * @property tint
+     * @type Number
+     * @default 0xFFFFFF
+     */
+    this.tint = 0xFFFFFF;
+
+    /**
+     * The blend mode to be applied to the graphic shape. Apply a value of PIXI.blendModes.NORMAL to reset the blend mode.
+     *
+     * @property blendMode
+     * @type Number
+     * @default PIXI.blendModes.NORMAL;
+     */
+    this.blendMode = PIXI.blendModes.NORMAL;
+    
+    /**
+     * Current path
+     *
+     * @property currentPath
+     * @type Object
+     * @private
+     */
+    this.currentPath = null;
+    
+    /**
+     * Array containing some WebGL-related properties used by the WebGL renderer.
+     *
+     * @property _webGL
+     * @type Array
+     * @private
+     */
+    this._webGL = [];
+
+    /**
+     * Whether this shape is being used as a mask.
+     *
+     * @property isMask
+     * @type Boolean
+     */
+    this.isMask = false;
+
+    /**
+     * The bounds' padding used for bounds calculation.
+     *
+     * @property boundsPadding
+     * @type Number
+     */
+    this.boundsPadding = 0;
+
+    this._localBounds = new Phaser.Rectangle(0, 0, 1, 1);
+
+    /**
+     * Used to detect if the graphics object has changed. If this is set to true then the graphics object will be recalculated.
+     * 
+     * @property dirty
+     * @type Boolean
+     * @private
+     */
+    this.dirty = true;
+
+    /**
+     * Used to detect if the bounds have been invalidated, by this Graphics being cleared or drawn to.
+     * If this is set to true then the updateLocalBounds is called once in the postUpdate method.
+     * 
+     * @property _boundsDirty
+     * @type Boolean
+     * @private
+     */
+    this._boundsDirty = false;
+
+    /**
+     * Used to detect if the webgl graphics object has changed. If this is set to true then the graphics object will be recalculated.
+     * 
+     * @property webGLDirty
+     * @type Boolean
+     * @private
+     */
+    this.webGLDirty = false;
+
+    /**
+     * Used to detect if the cached sprite object needs to be updated.
+     * 
+     * @property cachedSpriteDirty
+     * @type Boolean
+     * @private
+     */
+    this.cachedSpriteDirty = false;
 
     Phaser.Component.Core.init.call(this, game, x, y, '', null);
 
 };
 
-Phaser.Graphics.prototype = Object.create(PIXI.Graphics.prototype);
+Phaser.Graphics.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Phaser.Graphics.prototype.constructor = Phaser.Graphics;
 
 Phaser.Component.Core.install.call(Phaser.Graphics.prototype, [
@@ -33263,7 +31694,7 @@ Phaser.Graphics.prototype.postUpdate = function () {
 * @method Phaser.Graphics.prototype.destroy
 * @param {boolean} [destroyChildren=true] - Should every child of this object have its destroy method called?
 */
-Phaser.Graphics.prototype.destroy = function(destroyChildren) {
+Phaser.Graphics.prototype.destroy = function (destroyChildren) {
 
     this.clear();
 
@@ -33278,7 +31709,7 @@ Phaser.Graphics.prototype.destroy = function(destroyChildren) {
 * @param {Array<Phaser.Point>} points - An array of Phaser.Points that make up the three vertices of this triangle
 * @param {boolean} [cull=false] - Should we check if the triangle is back-facing
 */
-Phaser.Graphics.prototype.drawTriangle = function(points, cull) {
+Phaser.Graphics.prototype.drawTriangle = function (points, cull) {
 
     if (cull === undefined) { cull = false; }
 
@@ -33304,14 +31735,14 @@ Phaser.Graphics.prototype.drawTriangle = function(points, cull) {
 };
 
 /*
-* Draws {Phaser.Polygon} triangles 
+* Draws {Phaser.Polygon} triangles
 *
 * @method Phaser.Graphics.prototype.drawTriangles
 * @param {Array<Phaser.Point>|Array<number>} vertices - An array of Phaser.Points or numbers that make up the vertices of the triangles
 * @param {Array<number>} {indices=null} - An array of numbers that describe what order to draw the vertices in
 * @param {boolean} [cull=false] - Should we check if the triangle is back-facing
 */
-Phaser.Graphics.prototype.drawTriangles = function(vertices, indices, cull) {
+Phaser.Graphics.prototype.drawTriangles = function (vertices, indices, cull) {
 
     if (cull === undefined) { cull = false; }
 
@@ -33380,6 +31811,1172 @@ Phaser.Graphics.prototype.drawTriangles = function(vertices, indices, cull) {
 };
 
 /**
+ * Specifies the line style used for subsequent calls to Graphics methods such as the lineTo() method or the drawCircle() method.
+ *
+ * @method lineStyle
+ * @param lineWidth {Number} width of the line to draw, will update the objects stored style
+ * @param color {Number} color of the line to draw, will update the objects stored style
+ * @param alpha {Number} alpha of the line to draw, will update the objects stored style
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.lineStyle = function (lineWidth, color, alpha) {
+
+    this.lineWidth = lineWidth || 0;
+    this.lineColor = color || 0;
+    this.lineAlpha = (alpha === undefined) ? 1 : alpha;
+
+    if (this.currentPath)
+    {
+        if (this.currentPath.shape.points.length)
+        {
+            // halfway through a line? start a new one!
+            this.drawShape(new Phaser.Polygon(this.currentPath.shape.points.slice(-2)));
+        }
+        else
+        {
+            // otherwise its empty so lets just set the line properties
+            this.currentPath.lineWidth = this.lineWidth;
+            this.currentPath.lineColor = this.lineColor;
+            this.currentPath.lineAlpha = this.lineAlpha;
+        }
+    }
+
+    return this;
+
+};
+
+/**
+ * Moves the current drawing position to x, y.
+ *
+ * @method moveTo
+ * @param x {Number} the X coordinate to move to
+ * @param y {Number} the Y coordinate to move to
+ * @return {Graphics}
+  */
+Phaser.Graphics.prototype.moveTo = function (x, y) {
+
+    this.drawShape(new Phaser.Polygon([ x, y ]));
+
+    return this;
+
+};
+
+/**
+ * Draws a line using the current line style from the current drawing position to (x, y);
+ * The current drawing position is then set to (x, y).
+ *
+ * @method lineTo
+ * @param x {Number} the X coordinate to draw to
+ * @param y {Number} the Y coordinate to draw to
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.lineTo = function (x, y) {
+
+    if (!this.currentPath)
+    {
+        this.moveTo(0, 0);
+    }
+
+    this.currentPath.shape.points.push(x, y);
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return this;
+
+};
+
+/**
+ * Calculate the points for a quadratic bezier curve and then draws it.
+ * Based on: https://stackoverflow.com/questions/785097/how-do-i-implement-a-bezier-curve-in-c
+ *
+ * @method quadraticCurveTo
+ * @param cpX {Number} Control point x
+ * @param cpY {Number} Control point y
+ * @param toX {Number} Destination point x
+ * @param toY {Number} Destination point y
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.quadraticCurveTo = function (cpX, cpY, toX, toY) {
+
+    if (this.currentPath)
+    {
+        if (this.currentPath.shape.points.length === 0)
+        {
+            this.currentPath.shape.points = [ 0, 0 ];
+        }
+    }
+    else
+    {
+        this.moveTo(0,0);
+    }
+
+    var xa,
+        ya,
+        n = 20,
+        points = this.currentPath.shape.points;
+
+    if (points.length === 0)
+    {
+        this.moveTo(0, 0);
+    }
+
+    var fromX = points[points.length - 2];
+    var fromY = points[points.length - 1];
+    var j = 0;
+    for (var i = 1; i <= n; ++i)
+    {
+        j = i / n;
+
+        xa = fromX + ((cpX - fromX) * j);
+        ya = fromY + ((cpY - fromY) * j);
+
+        points.push( xa + ( ((cpX + ( (toX - cpX) * j )) - xa) * j ),
+                     ya + ( ((cpY + ( (toY - cpY) * j )) - ya) * j ) );
+    }
+
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return this;
+
+};
+
+/**
+ * Calculate the points for a bezier curve and then draws it.
+ *
+ * @method bezierCurveTo
+ * @param cpX {Number} Control point x
+ * @param cpY {Number} Control point y
+ * @param cpX2 {Number} Second Control point x
+ * @param cpY2 {Number} Second Control point y
+ * @param toX {Number} Destination point x
+ * @param toY {Number} Destination point y
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.bezierCurveTo = function (cpX, cpY, cpX2, cpY2, toX, toY) {
+
+    if (this.currentPath)
+    {
+        if (this.currentPath.shape.points.length === 0)
+        {
+            this.currentPath.shape.points = [0, 0];
+        }
+    }
+    else
+    {
+        this.moveTo(0,0);
+    }
+
+    var n = 20,
+        dt,
+        dt2,
+        dt3,
+        t2,
+        t3,
+        points = this.currentPath.shape.points;
+
+    var fromX = points[points.length-2];
+    var fromY = points[points.length-1];
+    var j = 0;
+
+    for (var i = 1; i <= n; ++i)
+    {
+        j = i / n;
+
+        dt = (1 - j);
+        dt2 = dt * dt;
+        dt3 = dt2 * dt;
+
+        t2 = j * j;
+        t3 = t2 * j;
+        
+        points.push( dt3 * fromX + 3 * dt2 * j * cpX + 3 * dt * t2 * cpX2 + t3 * toX,
+                     dt3 * fromY + 3 * dt2 * j * cpY + 3 * dt * t2 * cpY2 + t3 * toY);
+    }
+    
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return this;
+
+};
+
+/*
+ * The arcTo() method creates an arc/curve between two tangents on the canvas.
+ * 
+ * "borrowed" from https://code.google.com/p/fxcanvas/ - thanks google!
+ *
+ * @method arcTo
+ * @param x1 {Number} The x-coordinate of the beginning of the arc
+ * @param y1 {Number} The y-coordinate of the beginning of the arc
+ * @param x2 {Number} The x-coordinate of the end of the arc
+ * @param y2 {Number} The y-coordinate of the end of the arc
+ * @param radius {Number} The radius of the arc
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+
+    if (this.currentPath)
+    {
+        if (this.currentPath.shape.points.length === 0)
+        {
+            this.currentPath.shape.points.push(x1, y1);
+        }
+    }
+    else
+    {
+        this.moveTo(x1, y1);
+    }
+
+    var points = this.currentPath.shape.points,
+        fromX = points[points.length-2],
+        fromY = points[points.length-1],
+        a1 = fromY - y1,
+        b1 = fromX - x1,
+        a2 = y2   - y1,
+        b2 = x2   - x1,
+        mm = Math.abs(a1 * b2 - b1 * a2);
+
+    if (mm < 1.0e-8 || radius === 0)
+    {
+        if (points[points.length-2] !== x1 || points[points.length-1] !== y1)
+        {
+            points.push(x1, y1);
+        }
+    }
+    else
+    {
+        var dd = a1 * a1 + b1 * b1,
+            cc = a2 * a2 + b2 * b2,
+            tt = a1 * a2 + b1 * b2,
+            k1 = radius * Math.sqrt(dd) / mm,
+            k2 = radius * Math.sqrt(cc) / mm,
+            j1 = k1 * tt / dd,
+            j2 = k2 * tt / cc,
+            cx = k1 * b2 + k2 * b1,
+            cy = k1 * a2 + k2 * a1,
+            px = b1 * (k2 + j1),
+            py = a1 * (k2 + j1),
+            qx = b2 * (k1 + j2),
+            qy = a2 * (k1 + j2),
+            startAngle = Math.atan2(py - cy, px - cx),
+            endAngle   = Math.atan2(qy - cy, qx - cx);
+
+        this.arc(cx + x1, cy + y1, radius, startAngle, endAngle, b1 * a2 > b2 * a1);
+    }
+
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return this;
+
+};
+
+/**
+ * The arc method creates an arc/curve (used to create circles, or parts of circles).
+ *
+ * @method arc
+ * @param cx {Number} The x-coordinate of the center of the circle
+ * @param cy {Number} The y-coordinate of the center of the circle
+ * @param radius {Number} The radius of the circle
+ * @param startAngle {Number} The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle)
+ * @param endAngle {Number} The ending angle, in radians
+ * @param anticlockwise {Boolean} Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default, and indicates clockwise, while true indicates counter-clockwise.
+ * @param segments {Number} Optional. The number of segments to use when calculating the arc. The default is 40. If you need more fidelity use a higher number.
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.arc = function (cx, cy, radius, startAngle, endAngle, anticlockwise, segments) {
+
+    //  If we do this we can never draw a full circle
+    if (startAngle === endAngle)
+    {
+        return this;
+    }
+
+    if (anticlockwise === undefined) { anticlockwise = false; }
+    if (segments === undefined) { segments = 40; }
+
+    if (!anticlockwise && endAngle <= startAngle)
+    {
+        endAngle += Math.PI * 2;
+    }
+    else if (anticlockwise && startAngle <= endAngle)
+    {
+        startAngle += Math.PI * 2;
+    }
+
+    var sweep = anticlockwise ? (startAngle - endAngle) * -1 : (endAngle - startAngle);
+    var segs =  Math.ceil(Math.abs(sweep) / (Math.PI * 2)) * segments;
+
+    //  Sweep check - moved here because we don't want to do the moveTo below if the arc fails
+    if (sweep === 0)
+    {
+        return this;
+    }
+
+    var startX = cx + Math.cos(startAngle) * radius;
+    var startY = cy + Math.sin(startAngle) * radius;
+
+    if (anticlockwise && this.filling)
+    {
+        this.moveTo(cx, cy);
+    }
+    else
+    {
+        this.moveTo(startX, startY);
+    }
+
+    //  currentPath will always exist after calling a moveTo
+    var points = this.currentPath.shape.points;
+
+    var theta = sweep / (segs * 2);
+    var theta2 = theta * 2;
+
+    var cTheta = Math.cos(theta);
+    var sTheta = Math.sin(theta);
+    
+    var segMinus = segs - 1;
+
+    var remainder = (segMinus % 1) / segMinus;
+
+    for (var i = 0; i <= segMinus; i++)
+    {
+        var real = i + remainder * i;
+    
+        var angle = ((theta) + startAngle + (theta2 * real));
+
+        var c = Math.cos(angle);
+        var s = -Math.sin(angle);
+
+        points.push(( (cTheta *  c) + (sTheta * s) ) * radius + cx,
+                    ( (cTheta * -s) + (sTheta * c) ) * radius + cy);
+    }
+
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return this;
+
+};
+
+/**
+ * Specifies a simple one-color fill that subsequent calls to other Graphics methods
+ * (such as lineTo() or drawCircle()) use when drawing.
+ *
+ * @method beginFill
+ * @param color {Number} the color of the fill
+ * @param alpha {Number} the alpha of the fill
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.beginFill = function (color, alpha) {
+
+    this.filling = true;
+    this.fillColor = color || 0;
+    this.fillAlpha = (alpha === undefined) ? 1 : alpha;
+
+    if (this.currentPath)
+    {
+        if (this.currentPath.shape.points.length <= 2)
+        {
+            this.currentPath.fill = this.filling;
+            this.currentPath.fillColor = this.fillColor;
+            this.currentPath.fillAlpha = this.fillAlpha;
+        }
+    }
+
+    return this;
+
+};
+
+/**
+ * Applies a fill to the lines and shapes that were added since the last call to the beginFill() method.
+ *
+ * @method endFill
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.endFill = function () {
+
+    this.filling = false;
+    this.fillColor = null;
+    this.fillAlpha = 1;
+
+    return this;
+
+};
+
+/**
+ * @method drawRect
+ *
+ * @param x {Number} The X coord of the top-left of the rectangle
+ * @param y {Number} The Y coord of the top-left of the rectangle
+ * @param width {Number} The width of the rectangle
+ * @param height {Number} The height of the rectangle
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.drawRect = function (x, y, width, height) {
+
+    this.drawShape(new Phaser.Rectangle(x, y, width, height));
+
+    return this;
+
+};
+
+/**
+ * @method drawRoundedRect
+ * @param x {Number} The X coord of the top-left of the rectangle
+ * @param y {Number} The Y coord of the top-left of the rectangle
+ * @param width {Number} The width of the rectangle
+ * @param height {Number} The height of the rectangle
+ * @param radius {Number} Radius of the rectangle corners. In WebGL this must be a value between 0 and 9.
+ */
+Phaser.Graphics.prototype.drawRoundedRect = function (x, y, width, height, radius) {
+
+    this.drawShape(new Phaser.RoundedRectangle(x, y, width, height, radius));
+
+    return this;
+
+};
+
+/**
+ * Draws a circle.
+ *
+ * @method drawCircle
+ * @param x {Number} The X coordinate of the center of the circle
+ * @param y {Number} The Y coordinate of the center of the circle
+ * @param diameter {Number} The diameter of the circle
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.drawCircle = function (x, y, diameter) {
+
+    this.drawShape(new Phaser.Circle(x, y, diameter));
+
+    return this;
+
+};
+
+/**
+ * Draws an ellipse.
+ *
+ * @method drawEllipse
+ * @param x {Number} The X coordinate of the center of the ellipse
+ * @param y {Number} The Y coordinate of the center of the ellipse
+ * @param width {Number} The half width of the ellipse
+ * @param height {Number} The half height of the ellipse
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.drawEllipse = function (x, y, width, height) {
+
+    this.drawShape(new Phaser.Ellipse(x, y, width, height));
+
+    return this;
+
+};
+
+/**
+ * Draws a polygon using the given path.
+ *
+ * @method drawPolygon
+ * @param path {Array|Phaser.Polygon} The path data used to construct the polygon. Can either be an array of points or a Phaser.Polygon object.
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.drawPolygon = function (path) {
+
+    if (path instanceof Phaser.Polygon)
+    {
+        path = path.points;
+    }
+
+    // prevents an argument assignment deopt
+    // see section 3.1: https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
+    var points = path;
+
+    if (!Array.isArray(points))
+    {
+        // prevents an argument leak deopt
+        // see section 3.2: https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
+        points = new Array(arguments.length);
+
+        for (var i = 0; i < points.length; ++i)
+        {
+            points[i] = arguments[i];
+        }
+    }
+
+    this.drawShape(new Phaser.Polygon(points));
+
+    return this;
+
+};
+
+/**
+ * Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
+ *
+ * @method clear
+ * @return {Graphics}
+ */
+Phaser.Graphics.prototype.clear = function () {
+
+    this.lineWidth = 0;
+    this.filling = false;
+
+    this.dirty = true;
+    this._boundsDirty = true;
+    this.clearDirty = true;
+    this.graphicsData = [];
+
+    this.updateLocalBounds();
+
+    return this;
+
+};
+
+/**
+ * Useful function that returns a texture of the graphics object that can then be used to create sprites
+ * This can be quite useful if your geometry is complicated and needs to be reused multiple times.
+ *
+ * @method generateTexture
+ * @param [resolution=1] {Number} The resolution of the texture being generated
+ * @param [scaleMode=0] {Number} Should be one of the PIXI.scaleMode consts
+ * @param [padding=0] {Number} Add optional extra padding to the generated texture (default 0)
+ * @return {Texture} a texture of the graphics object
+ */
+Phaser.Graphics.prototype.generateTexture = function (resolution, scaleMode, padding) {
+
+    if (resolution === undefined) { resolution = 1; }
+    if (scaleMode === undefined) { scaleMode = PIXI.scaleModes.DEFAULT; }
+    if (padding === undefined) { padding = 0; }
+
+    var bounds = this.getBounds();
+
+    bounds.width += padding;
+    bounds.height += padding;
+   
+    var canvasBuffer = new PIXI.CanvasBuffer(bounds.width * resolution, bounds.height * resolution);
+    
+    var texture = PIXI.Texture.fromCanvas(canvasBuffer.canvas, scaleMode);
+
+    texture.baseTexture.resolution = resolution;
+
+    canvasBuffer.context.scale(resolution, resolution);
+
+    canvasBuffer.context.translate(-bounds.x, -bounds.y);
+
+    PIXI.CanvasGraphics.renderGraphics(this, canvasBuffer.context);
+
+    return texture;
+
+};
+
+/**
+* Renders the object using the WebGL renderer
+*
+* @method _renderWebGL
+* @param renderSession {RenderSession} 
+* @private
+*/
+Phaser.Graphics.prototype._renderWebGL = function (renderSession) {
+
+    // if the sprite is not visible or the alpha is 0 then no need to render this element
+    if (this.visible === false || this.alpha === 0 || this.isMask === true)
+    {
+        return;
+    }
+
+    if (this._cacheAsBitmap)
+    {
+        if (this.dirty || this.cachedSpriteDirty)
+        {
+            this._generateCachedSprite();
+   
+            // we will also need to update the texture on the gpu too!
+            this.updateCachedSpriteTexture();
+
+            this.cachedSpriteDirty = false;
+            this.dirty = false;
+        }
+
+        this._cachedSprite.worldAlpha = this.worldAlpha;
+
+        PIXI.Sprite.prototype._renderWebGL.call(this._cachedSprite, renderSession);
+
+        return;
+    }
+    else
+    {
+        renderSession.spriteBatch.stop();
+        renderSession.blendModeManager.setBlendMode(this.blendMode);
+
+        if (this._mask)
+        {
+            renderSession.maskManager.pushMask(this._mask, renderSession);
+        }
+
+        if (this._filters)
+        {
+            renderSession.filterManager.pushFilter(this._filterBlock);
+        }
+      
+        // check blend mode
+        if (this.blendMode !== renderSession.spriteBatch.currentBlendMode)
+        {
+            renderSession.spriteBatch.currentBlendMode = this.blendMode;
+            var blendModeWebGL = PIXI.blendModesWebGL[renderSession.spriteBatch.currentBlendMode];
+            renderSession.spriteBatch.gl.blendFunc(blendModeWebGL[0], blendModeWebGL[1]);
+        }
+        
+        // check if the webgl graphic needs to be updated
+        if (this.webGLDirty)
+        {
+            this.dirty = true;
+            this.webGLDirty = false;
+        }
+        
+        PIXI.WebGLGraphics.renderGraphics(this, renderSession);
+        
+        // only render if it has children!
+        if (this.children.length)
+        {
+            renderSession.spriteBatch.start();
+
+            // simple render children!
+            for (var i = 0; i < this.children.length; i++)
+            {
+                this.children[i]._renderWebGL(renderSession);
+            }
+
+            renderSession.spriteBatch.stop();
+        }
+
+        if (this._filters)
+        {
+            renderSession.filterManager.popFilter();
+        }
+
+        if (this._mask)
+        {
+            renderSession.maskManager.popMask(this.mask, renderSession);
+        }
+          
+        renderSession.drawCount++;
+
+        renderSession.spriteBatch.start();
+    }
+
+};
+
+/**
+* Renders the object using the Canvas renderer
+*
+* @method _renderCanvas
+* @param renderSession {RenderSession} 
+* @private
+*/
+Phaser.Graphics.prototype._renderCanvas = function (renderSession) {
+
+    // if the sprite is not visible or the alpha is 0 then no need to render this element
+    if (this.visible === false || this.alpha === 0 || this.isMask === true)
+    {
+        return;
+    }
+
+    // if the tint has changed, set the graphics object to dirty.
+    if (this._prevTint !== this.tint)
+    {
+        this.dirty = true;
+        this._prevTint = this.tint;
+    }
+
+    if (this._cacheAsBitmap)
+    {
+        if (this.dirty || this.cachedSpriteDirty)
+        {
+            this._generateCachedSprite();
+   
+            // we will also need to update the texture
+            this.updateCachedSpriteTexture();
+
+            this.cachedSpriteDirty = false;
+            this.dirty = false;
+        }
+
+        this._cachedSprite.alpha = this.alpha;
+
+        PIXI.Sprite.prototype._renderCanvas.call(this._cachedSprite, renderSession);
+
+        return;
+    }
+    else
+    {
+        var context = renderSession.context;
+        var transform = this.worldTransform;
+        
+        if (this.blendMode !== renderSession.currentBlendMode)
+        {
+            renderSession.currentBlendMode = this.blendMode;
+            context.globalCompositeOperation = PIXI.blendModesCanvas[renderSession.currentBlendMode];
+        }
+
+        if (this._mask)
+        {
+            renderSession.maskManager.pushMask(this._mask, renderSession);
+        }
+
+        var resolution = renderSession.resolution;
+        var tx = (transform.tx * renderSession.resolution) + renderSession.shakeX;
+        var ty = (transform.ty * renderSession.resolution) + renderSession.shakeY;
+
+        context.setTransform(transform.a * resolution,
+                             transform.b * resolution,
+                             transform.c * resolution,
+                             transform.d * resolution,
+                             tx,
+                             ty);
+
+        PIXI.CanvasGraphics.renderGraphics(this, context);
+
+         // simple render children!
+        for (var i = 0; i < this.children.length; i++)
+        {
+            this.children[i]._renderCanvas(renderSession);
+        }
+
+        if (this._mask)
+        {
+            renderSession.maskManager.popMask(renderSession);
+        }
+    }
+
+};
+
+/**
+ * Retrieves the bounds of the graphic shape as a rectangle object
+ *
+ * @method getBounds
+ * @return {Rectangle} the rectangular bounding area
+ */
+Phaser.Graphics.prototype.getBounds = function (matrix) {
+
+    if (this._currentBounds)
+    {
+        return this._currentBounds;
+    }
+
+    //  Return an empty object if the item is a mask!
+    if (!this.renderable)
+    {
+        return Phaser.EmptyRectangle;
+    }
+
+    if (this.dirty)
+    {
+        this.updateLocalBounds();
+        this.webGLDirty = true;
+        this.cachedSpriteDirty = true;
+        this.dirty = false;
+    }
+
+    var bounds = this._localBounds;
+
+    var w0 = bounds.x;
+    var w1 = bounds.width + bounds.x;
+
+    var h0 = bounds.y;
+    var h1 = bounds.height + bounds.y;
+
+    var worldTransform = matrix || this.worldTransform;
+
+    var a = worldTransform.a;
+    var b = worldTransform.b;
+    var c = worldTransform.c;
+    var d = worldTransform.d;
+    var tx = worldTransform.tx;
+    var ty = worldTransform.ty;
+
+    var x1 = a * w1 + c * h1 + tx;
+    var y1 = d * h1 + b * w1 + ty;
+
+    var x2 = a * w0 + c * h1 + tx;
+    var y2 = d * h1 + b * w0 + ty;
+
+    var x3 = a * w0 + c * h0 + tx;
+    var y3 = d * h0 + b * w0 + ty;
+
+    var x4 =  a * w1 + c * h0 + tx;
+    var y4 =  d * h0 + b * w1 + ty;
+
+    var maxX = x1;
+    var maxY = y1;
+
+    var minX = x1;
+    var minY = y1;
+
+    minX = x2 < minX ? x2 : minX;
+    minX = x3 < minX ? x3 : minX;
+    minX = x4 < minX ? x4 : minX;
+
+    minY = y2 < minY ? y2 : minY;
+    minY = y3 < minY ? y3 : minY;
+    minY = y4 < minY ? y4 : minY;
+
+    maxX = x2 > maxX ? x2 : maxX;
+    maxX = x3 > maxX ? x3 : maxX;
+    maxX = x4 > maxX ? x4 : maxX;
+
+    maxY = y2 > maxY ? y2 : maxY;
+    maxY = y3 > maxY ? y3 : maxY;
+    maxY = y4 > maxY ? y4 : maxY;
+
+    this._bounds.x = minX;
+    this._bounds.width = maxX - minX;
+
+    this._bounds.y = minY;
+    this._bounds.height = maxY - minY;
+
+    this._currentBounds = this._bounds;
+
+    return this._currentBounds;
+
+};
+
+/**
+ * Retrieves the non-global local bounds of the graphic shape as a rectangle. The calculation takes all visible children into consideration.
+ *
+ * @method getLocalBounds
+ * @return {Rectangle} The rectangular bounding area
+ */
+Phaser.Graphics.prototype.getLocalBounds = function () {
+
+    var matrixCache = this.worldTransform;
+
+    this.worldTransform = Phaser.identityMatrix;
+
+    for (var i = 0; i < this.children.length; i++)
+    {
+        this.children[i].updateTransform();
+    }
+
+    var bounds = this.getBounds();
+
+    this.worldTransform = matrixCache;
+
+    for (i = 0; i < this.children.length; i++)
+    {
+        this.children[i].updateTransform();
+    }
+
+    return bounds;
+
+};
+
+/**
+* Tests if a point is inside this graphics object
+*
+* @param point {Point} the point to test
+* @return {boolean} the result of the test
+*/
+Phaser.Graphics.prototype.containsPoint = function (point) {
+
+    this.worldTransform.applyInverse(point, tempPoint);
+
+    var graphicsData = this.graphicsData;
+
+    for (var i = 0; i < graphicsData.length; i++)
+    {
+        var data = graphicsData[i];
+
+        if (!data.fill)
+        {
+            continue;
+        }
+
+        // only deal with fills..
+        if (data.shape)
+        {
+            if (data.shape.contains(tempPoint.x, tempPoint.y))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+
+};
+
+/**
+ * Update the bounds of the object
+ *
+ * @method updateLocalBounds
+ */
+Phaser.Graphics.prototype.updateLocalBounds = function () {
+
+    var minX = Infinity;
+    var maxX = -Infinity;
+
+    var minY = Infinity;
+    var maxY = -Infinity;
+
+    if (this.graphicsData.length)
+    {
+        var shape, points, x, y, w, h;
+
+        for (var i = 0; i < this.graphicsData.length; i++)
+        {
+            var data = this.graphicsData[i];
+            var type = data.type;
+            var lineWidth = data.lineWidth;
+            shape = data.shape;
+
+            if (type === Phaser.RECTANGLE || type === Phaser.ROUNDEDRECTANGLE)
+            {
+                x = shape.x - lineWidth / 2;
+                y = shape.y - lineWidth / 2;
+                w = shape.width + lineWidth;
+                h = shape.height + lineWidth;
+
+                minX = x < minX ? x : minX;
+                maxX = x + w > maxX ? x + w : maxX;
+
+                minY = y < minY ? y : minY;
+                maxY = y + h > maxY ? y + h : maxY;
+            }
+            else if (type === Phaser.CIRCLE)
+            {
+                x = shape.x;
+                y = shape.y;
+                w = shape.radius + lineWidth / 2;
+                h = shape.radius + lineWidth / 2;
+
+                minX = x - w < minX ? x - w : minX;
+                maxX = x + w > maxX ? x + w : maxX;
+
+                minY = y - h < minY ? y - h : minY;
+                maxY = y + h > maxY ? y + h : maxY;
+            }
+            else if (type === Phaser.ELLIPSE)
+            {
+                x = shape.x;
+                y = shape.y;
+                w = shape.width + lineWidth / 2;
+                h = shape.height + lineWidth / 2;
+
+                minX = x - w < minX ? x - w : minX;
+                maxX = x + w > maxX ? x + w : maxX;
+
+                minY = y - h < minY ? y - h : minY;
+                maxY = y + h > maxY ? y + h : maxY;
+            }
+            else
+            {
+                // POLY - assumes points are sequential, not Point objects
+                points = shape.points;
+
+                for (var j = 0; j < points.length; j++)
+                {
+                    if (points[j] instanceof Phaser.Point)
+                    {
+                        x = points[j].x;
+                        y = points[j].y;
+                    }
+                    else
+                    {
+                        x = points[j];
+                        y = points[j + 1];
+
+                        if (j < points.length - 1)
+                        {
+                            j++;
+                        }
+                    }
+
+                    minX = x - lineWidth < minX ? x - lineWidth : minX;
+                    maxX = x + lineWidth > maxX ? x + lineWidth : maxX;
+
+                    minY = y - lineWidth < minY ? y - lineWidth : minY;
+                    maxY = y + lineWidth > maxY ? y + lineWidth : maxY;
+                }
+            }
+        }
+    }
+    else
+    {
+        minX = 0;
+        maxX = 0;
+        minY = 0;
+        maxY = 0;
+    }
+
+    var padding = this.boundsPadding;
+    
+    this._localBounds.x = minX - padding;
+    this._localBounds.width = (maxX - minX) + padding * 2;
+
+    this._localBounds.y = minY - padding;
+    this._localBounds.height = (maxY - minY) + padding * 2;
+
+};
+
+/**
+ * Generates the cached sprite when the sprite has cacheAsBitmap = true
+ *
+ * @method _generateCachedSprite
+ * @private
+ */
+Phaser.Graphics.prototype._generateCachedSprite = function () {
+
+    var bounds = this.getLocalBounds();
+
+    if (!this._cachedSprite)
+    {
+        var canvasBuffer = new PIXI.CanvasBuffer(bounds.width, bounds.height);
+        var texture = PIXI.Texture.fromCanvas(canvasBuffer.canvas);
+        
+        this._cachedSprite = new PIXI.Sprite(texture);
+        this._cachedSprite.buffer = canvasBuffer;
+
+        this._cachedSprite.worldTransform = this.worldTransform;
+    }
+    else
+    {
+        this._cachedSprite.buffer.resize(bounds.width, bounds.height);
+    }
+
+    // leverage the anchor to account for the offset of the element
+    this._cachedSprite.anchor.x = -(bounds.x / bounds.width);
+    this._cachedSprite.anchor.y = -(bounds.y / bounds.height);
+
+    // this._cachedSprite.buffer.context.save();
+    this._cachedSprite.buffer.context.translate(-bounds.x, -bounds.y);
+    
+    // make sure we set the alpha of the graphics to 1 for the render.. 
+    this.worldAlpha = 1;
+
+    // now render the graphic..
+    PIXI.CanvasGraphics.renderGraphics(this, this._cachedSprite.buffer.context);
+    this._cachedSprite.alpha = this.alpha;
+
+};
+
+/**
+ * Updates texture size based on canvas size
+ *
+ * @method updateCachedSpriteTexture
+ * @private
+ */
+Phaser.Graphics.prototype.updateCachedSpriteTexture = function () {
+
+    var cachedSprite = this._cachedSprite;
+    var texture = cachedSprite.texture;
+    var canvas = cachedSprite.buffer.canvas;
+
+    texture.baseTexture.width = canvas.width;
+    texture.baseTexture.height = canvas.height;
+    texture.crop.width = texture.frame.width = canvas.width;
+    texture.crop.height = texture.frame.height = canvas.height;
+
+    cachedSprite._width = canvas.width;
+    cachedSprite._height = canvas.height;
+
+    // update the dirty base textures
+    texture.baseTexture.dirty();
+
+};
+
+/**
+ * Destroys a previous cached sprite.
+ *
+ * @method destroyCachedSprite
+ */
+Phaser.Graphics.prototype.destroyCachedSprite = function () {
+
+    this._cachedSprite.texture.destroy(true);
+    this._cachedSprite = null;
+
+};
+
+/**
+ * Draws the given shape to this Graphics object. Can be any of Circle, Rectangle, Ellipse, Line or Polygon.
+ *
+ * @method drawShape
+ * @param {Circle|Rectangle|Ellipse|Line|Polygon} shape The Shape object to draw.
+ * @return {GraphicsData} The generated GraphicsData object.
+ */
+Phaser.Graphics.prototype.drawShape = function (shape) {
+
+    if (this.currentPath)
+    {
+        // check current path!
+        if (this.currentPath.shape.points.length <= 2)
+        {
+            this.graphicsData.pop();
+        }
+    }
+
+    this.currentPath = null;
+
+    //  Handle mixed-type polygons
+    if (shape instanceof Phaser.Polygon)
+    {
+        shape = shape.clone();
+        shape.flatten();
+    }
+
+    var data = new Phaser.GraphicsData(this.lineWidth, this.lineColor, this.lineAlpha, this.fillColor, this.fillAlpha, this.filling, shape);
+    
+    this.graphicsData.push(data);
+
+    if (data.type === Phaser.POLYGON)
+    {
+        data.shape.closed = this.filling;
+        this.currentPath = data;
+    }
+
+    this.dirty = true;
+    this._boundsDirty = true;
+
+    return data;
+
+};
+
+/**
+ * When cacheAsBitmap is set to true the graphics object will be rendered as if it was a sprite.
+ * This is useful if your graphics element does not change often, as it will speed up the rendering of the object in exchange for taking up texture memory.
+ * It is also useful if you need the graphics object to be anti-aliased, because it will be rendered using canvas.
+ * This is not recommended if you are constantly redrawing the graphics element.
+ *
+ * @property cacheAsBitmap
+ * @type Boolean
+ * @default false
+ * @private
+ */
+Object.defineProperty(Phaser.Graphics.prototype, 'cacheAsBitmap', {
+
+    get: function () {
+
+        return  this._cacheAsBitmap;
+
+    },
+
+    set: function (value) {
+
+        this._cacheAsBitmap = value;
+
+        if (this._cacheAsBitmap)
+        {
+            this._generateCachedSprite();
+        }
+        else
+        {
+            this.destroyCachedSprite();
+        }
+
+        this.dirty = true;
+        this.webGLDirty = true;
+
+    }
+});
+
+/**
 * @author       Richard Davey <rich@photonstorm.com>
 * @copyright    2016 Photon Storm Ltd.
 * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
@@ -33391,7 +32988,7 @@ Phaser.Graphics.prototype.drawTriangles = function(vertices, indices, cull) {
 * 
 * @class Phaser.RenderTexture
 * @constructor
-* @extends PIXI.RenderTexture
+* @extends PIXI.Texture
 * @param {Phaser.Game} game - Current game instance.
 * @param {number} [width=100] - The width of the render texture.
 * @param {number} [height=100] - The height of the render texture.
@@ -33399,11 +32996,15 @@ Phaser.Graphics.prototype.drawTriangles = function(vertices, indices, cull) {
 * @param {number} [scaleMode=Phaser.scaleModes.DEFAULT] - One of the Phaser.scaleModes consts.
 * @param {number} [resolution=1] - The resolution of the texture being generated.
 */
-Phaser.RenderTexture = function (game, width, height, key, scaleMode, resolution) {
+Phaser.RenderTexture = function (game, width, height, key, scaleMode, resolution, renderer, textureUnit) {
 
+    if (width === undefined) { width = 100; }
+    if (height === undefined) { height = 100; }
     if (key === undefined) { key = ''; }
     if (scaleMode === undefined) { scaleMode = Phaser.scaleModes.DEFAULT; }
     if (resolution === undefined) { resolution = 1; }
+    if (renderer === undefined) { renderer = PIXI.defaultRenderer; }
+    if (textureUnit === undefined) { textureUnit = 0; }
 
     /**
     * @property {Phaser.Game} game - A reference to the currently running game.
@@ -33421,18 +33022,75 @@ Phaser.RenderTexture = function (game, width, height, key, scaleMode, resolution
     this.type = Phaser.RENDERTEXTURE;
 
     /**
-    * @property {PIXI.Matrix} _tempMatrix - The matrix that is applied when display objects are rendered to this RenderTexture.
+    * @property {Phaser.Matrix} _tempMatrix - The matrix that is applied when display objects are rendered to this RenderTexture.
     * @private
     */
-    this._tempMatrix = new PIXI.Matrix();
+    this._tempMatrix = new Phaser.Matrix();
 
-    PIXI.RenderTexture.call(this, width, height, this.game.renderer, scaleMode, resolution);
+    this.width = width;
+    this.height = height;
+    this.resolution = resolution;
 
-    this.render = Phaser.RenderTexture.prototype.render;
+    this.frame = new Phaser.Rectangle(0, 0, this.width * this.resolution, this.height * this.resolution);
+
+    this.crop = this.frame.clone();
+
+    /**
+     * The base texture object that this texture uses
+     *
+     * @property baseTexture
+     * @type BaseTexture
+     */
+    this.baseTexture = new PIXI.BaseTexture();
+    this.baseTexture.width = this.width * this.resolution;
+    this.baseTexture.height = this.height * this.resolution;
+    this.baseTexture._glTextures = [];
+    this.baseTexture.resolution = this.resolution;
+
+    this.baseTexture.scaleMode = scaleMode;
+
+    this.baseTexture.hasLoaded = true;
+
+    PIXI.Texture.call(this, this.baseTexture, this.frame.clone());
+
+    /**
+     * The renderer this RenderTexture uses. A RenderTexture can only belong to one renderer at the moment if its webGL.
+     *
+     * @property renderer
+     * @type CanvasRenderer|WebGLRenderer
+     */
+    this.renderer = renderer;
+
+    if (this.renderer.type === Phaser.WEBGL)
+    {
+        var gl = this.renderer.gl;
+        this.baseTexture.textureIndex = textureUnit;
+        this.baseTexture._dirty[gl.id] = false;
+
+        this.textureBuffer = new PIXI.FilterTexture(gl, this.width, this.height, this.baseTexture.scaleMode, textureUnit);
+        this.baseTexture._glTextures[gl.id] = this.textureBuffer.texture;
+
+        this.projection = new Phaser.Point(this.width * 0.5, -this.height * 0.5);
+    }
+    else
+    {
+        this.textureBuffer = new PIXI.CanvasBuffer(this.width * this.resolution, this.height * this.resolution);
+        this.baseTexture.source = this.textureBuffer.canvas;
+    }
+
+    /**
+     * @property valid
+     * @type Boolean
+     */
+    this.valid = true;
+
+    this.tempMatrix = new Phaser.Matrix();
+
+    this._updateUvs();
 
 };
 
-Phaser.RenderTexture.prototype = Object.create(PIXI.RenderTexture.prototype);
+Phaser.RenderTexture.prototype = Object.create(PIXI.Texture.prototype);
 Phaser.RenderTexture.prototype.constructor = Phaser.RenderTexture;
 
 /**
@@ -33456,13 +33114,13 @@ Phaser.RenderTexture.prototype.renderXY = function (displayObject, x, y, clear) 
     this._tempMatrix.tx = x;
     this._tempMatrix.ty = y;
 
-    if (this.renderer.type === PIXI.WEBGL_RENDERER)
+    if (this.renderer.type === Phaser.WEBGL)
     {
-        this.renderWebGL(displayObject, this._tempMatrix, clear);
+        this._renderWebGL(displayObject, this._tempMatrix, clear);
     }
     else
     {
-        this.renderCanvas(displayObject, this._tempMatrix, clear);
+        this._renderCanvas(displayObject, this._tempMatrix, clear);
     }
 
 };
@@ -33484,13 +33142,13 @@ Phaser.RenderTexture.prototype.renderRawXY = function (displayObject, x, y, clea
 
     this._tempMatrix.identity().translate(x, y);
 
-    if (this.renderer.type === PIXI.WEBGL_RENDERER)
+    if (this.renderer.type === Phaser.WEBGL)
     {
-        this.renderWebGL(displayObject, this._tempMatrix, clear);
+        this._renderWebGL(displayObject, this._tempMatrix, clear);
     }
     else
     {
-        this.renderCanvas(displayObject, this._tempMatrix, clear);
+        this._renderCanvas(displayObject, this._tempMatrix, clear);
     }
 
 };
@@ -33521,13 +33179,244 @@ Phaser.RenderTexture.prototype.render = function (displayObject, matrix, clear) 
         this._tempMatrix.copyFrom(matrix);
     }
 
-    if (this.renderer.type === PIXI.WEBGL_RENDERER)
+    if (this.renderer.type === Phaser.WEBGL)
     {
-        this.renderWebGL(displayObject, this._tempMatrix, clear);
+        this._renderWebGL(displayObject, this._tempMatrix, clear);
     }
     else
     {
-        this.renderCanvas(displayObject, this._tempMatrix, clear);
+        this._renderCanvas(displayObject, this._tempMatrix, clear);
+    }
+
+};
+
+/**
+* Resizes the RenderTexture.
+*
+* @method Phaser.RenderTexture.prototype.resize
+* @param {number} width - The width to resize to.
+* @param {number} height - The height to resize to.
+* @param {boolean} updateBase - Should the baseTexture.width and height values be resized as well?
+*/
+Phaser.RenderTexture.prototype.resize = function (width, height, updateBase) {
+
+    if (width === this.width && height === this.height)
+    {
+        return;
+    }
+
+    this.valid = (width > 0 && height > 0);
+
+    this.width = width;
+    this.height = height;
+    this.frame.width = this.crop.width = width * this.resolution;
+    this.frame.height = this.crop.height = height * this.resolution;
+
+    if (updateBase)
+    {
+        this.baseTexture.width = this.width * this.resolution;
+        this.baseTexture.height = this.height * this.resolution;
+    }
+
+    if (this.renderer.type === Phaser.WEBGL)
+    {
+        this.projection.x = this.width / 2;
+        this.projection.y = -this.height / 2;
+    }
+
+    if (!this.valid)
+    {
+        return;
+    }
+
+    this.textureBuffer.resize(this.width, this.height);
+
+};
+
+/**
+* Clears the RenderTexture.
+*
+* @method Phaser.RenderTexture.prototype.clear
+*/
+Phaser.RenderTexture.prototype.clear = function () {
+
+    if (!this.valid)
+    {
+        return;
+    }
+
+    if (this.renderer.type === Phaser.WEBGL)
+    {
+        this.renderer.gl.bindFramebuffer(this.renderer.gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+    }
+
+    this.textureBuffer.clear();
+
+};
+
+/**
+* This function will draw the display object to the texture.
+*
+* @private
+* @method Phaser.RenderTexture.prototype._renderWebGL
+* @param displayObject {DisplayObject} The display object to render this texture on
+* @param [matrix] {Matrix} Optional matrix to apply to the display object before rendering.
+* @param [clear] {Boolean} If true the texture will be cleared before the displayObject is drawn
+* @private
+*/
+Phaser.RenderTexture.prototype._renderWebGL = function (displayObject, matrix, clear) {
+
+    if (!this.valid || displayObject.alpha === 0)
+    {
+        return;
+    }
+   
+    //  Let's create a nice matrix to apply to our display object.
+    //  Frame buffers come in upside down so we need to flip the matrix.
+    var wt = displayObject.worldTransform;
+    wt.identity();
+    wt.translate(0, this.projection.y * 2);
+
+    if (matrix)
+    {
+        wt.append(matrix);
+    }
+
+    wt.scale(1, -1);
+
+    //  Time to update all the children of the displayObject with the new matrix.
+    for (var i = 0; i < displayObject.children.length; i++)
+    {
+        displayObject.children[i].updateTransform();
+    }
+    
+    //  Time for the webGL fun stuff!
+    var gl = this.renderer.gl;
+
+    gl.viewport(0, 0, this.width * this.resolution, this.height * this.resolution);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+
+    if (clear)
+    {
+        this.textureBuffer.clear();
+    }
+
+    this.renderer.spriteBatch.dirty = true;
+
+    this.renderer.renderDisplayObject(displayObject, this.projection, this.textureBuffer.frameBuffer, matrix);
+
+    this.renderer.spriteBatch.dirty = true;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+};
+
+/**
+* This function will draw the display object to the texture.
+*
+* @private
+* @method Phaser.RenderTexture.prototype._renderCanvas
+* @param displayObject {DisplayObject} The display object to render this texture on
+* @param [matrix] {Matrix} Optional matrix to apply to the display object before rendering.
+* @param [clear] {Boolean} If true the texture will be cleared before the displayObject is drawn
+*/
+Phaser.RenderTexture.prototype._renderCanvas = function (displayObject, matrix, clear) {
+
+    if (!this.valid || displayObject.alpha === 0)
+    {
+        return;
+    }
+
+    //  Let's create a nice matrix to apply to our display object.
+    //  Frame buffers come in upside down so we need to flip the matrix.
+    var wt = displayObject.worldTransform;
+    wt.identity();
+
+    if (matrix)
+    {
+        wt.append(matrix);
+    }
+
+    // Time to update all the children of the displayObject with the new matrix (what new matrix? there isn't one!)
+    for (var i = 0; i < displayObject.children.length; i++)
+    {
+        displayObject.children[i].updateTransform();
+    }
+
+    if (clear)
+    {
+        this.textureBuffer.clear();
+    }
+
+    var realResolution = this.renderer.resolution;
+
+    this.renderer.resolution = this.resolution;
+
+    this.renderer.renderDisplayObject(displayObject, this.textureBuffer.context, matrix);
+
+    this.renderer.resolution = realResolution;
+
+};
+
+/**
+* Will return a HTML Image of the texture
+*
+* @method Phaser.RenderTexture.prototype.getImage
+* @return {Image}
+*/
+Phaser.RenderTexture.prototype.getImage = function () {
+
+    var image = new Image();
+    image.src = this.getBase64();
+
+    return image;
+
+};
+
+/**
+* Will return a base64 encoded string of this texture. It works by calling RenderTexture.getCanvas and then running toDataURL on that.
+*
+* @method Phaser.RenderTexture.prototype.getBase64
+* @return {String} A base64 encoded string of the texture.
+*/
+Phaser.RenderTexture.prototype.getBase64 = function () {
+
+    return this.getCanvas().toDataURL();
+
+};
+
+/**
+* Creates a Canvas element, renders this RenderTexture to it and then returns it.
+*
+* @method Phaser.RenderTexture.prototype.getCanvas
+* @return {HTMLCanvasElement} A Canvas element with the texture rendered on.
+*/
+Phaser.RenderTexture.prototype.getCanvas = function () {
+
+    if (this.renderer.type === Phaser.WEBGL)
+    {
+        var gl = this.renderer.gl;
+        var width = this.textureBuffer.width;
+        var height = this.textureBuffer.height;
+
+        var webGLPixels = new Uint8Array(4 * width * height);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.textureBuffer.frameBuffer);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webGLPixels);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        var tempCanvas = new PIXI.CanvasBuffer(width, height);
+        var canvasData = tempCanvas.context.getImageData(0, 0, width, height);
+        canvasData.data.set(webGLPixels);
+
+        tempCanvas.context.putImageData(canvasData, 0, 0);
+
+        return tempCanvas.canvas;
+    }
+    else
+    {
+        return this.textureBuffer.canvas;
     }
 
 };
@@ -33617,7 +33506,7 @@ Phaser.Text = function (game, x, y, text, style) {
     /**
      * @property {HTMLCanvasElement} canvas - The canvas element that the text is rendered.
      */
-    this.canvas = PIXI.CanvasPool.create(this);
+    this.canvas = Phaser.CanvasPool.create(this);
 
     /**
      * @property {HTMLCanvasElement} context - The context of the canvas element that the text is rendered to.
@@ -33664,6 +33553,14 @@ Phaser.Text = function (game, x, y, text, style) {
     * @default
     */
     this.useAdvancedWrap = false;
+
+    /**
+     * The Regular Expression that is used to split the text up into lines, in
+     * multi-line text. By default this is `/(?:\r\n|\r|\n)/`.
+     * You can change this RegExp to be anything else that you may need.
+     * @property {Object} splitRegExp
+     */
+    this.splitRegExp = /(?:\r\n|\r|\n)/;
 
     /**
      * @property {number} _res - Internal canvas resolution var.
@@ -33888,7 +33785,7 @@ Phaser.Text.prototype.setStyle = function (style, update) {
 };
 
 /**
-* Renders text. This replaces the Pixi.Text.updateText function as we need a few extra bits in here.
+* Renders text to the internal canvas.
 *
 * @method Phaser.Text#updateText
 * @private
@@ -33907,7 +33804,7 @@ Phaser.Text.prototype.updateText = function () {
     }
 
     //  Split text into lines
-    var lines = outputText.split(/(?:\r\n|\r|\n)/);
+    var lines = outputText.split(this.splitRegExp);
 
     //  Calculate text width
     var tabs = this.style.tabs;
@@ -35771,6 +35668,7 @@ Object.defineProperty(Phaser.Text.prototype, 'shadowFill', {
 });
 
 /**
+* The width of the Text object in pixels. This is width of the Texture frame / the Text.resolution.
 * @name Phaser.Text#width
 * @property {number} width - The width of the Text. Setting this will modify the scale to achieve the value requested.
 */
@@ -35784,7 +35682,7 @@ Object.defineProperty(Phaser.Text.prototype, 'width', {
             this.dirty = false;
         }
 
-        return this.scale.x * this.texture.frame.width;
+        return this.scale.x * (this.texture.frame.width / this.resolution);
     },
 
     set: function(value) {
@@ -35796,6 +35694,7 @@ Object.defineProperty(Phaser.Text.prototype, 'width', {
 });
 
 /**
+* The height of the Text object in pixels. This is height of the Texture frame / the Text.resolution.
 * @name Phaser.Text#height
 * @property {number} height - The height of the Text. Setting this will modify the scale to achieve the value requested.
 */
@@ -35809,7 +35708,7 @@ Object.defineProperty(Phaser.Text.prototype, 'height', {
             this.dirty = false;
         }
 
-        return this.scale.y * this.texture.frame.height;
+        return this.scale.y * (this.texture.frame.height / this.resolution);
     },
 
     set: function(value) {
@@ -37145,6 +37044,8 @@ Object.defineProperty(Phaser.RetroFont.prototype, "smoothed", {
 
 /**
 * @author       Richard Davey <rich@photonstorm.com>
+* @author       Mat Groves (@Doormat23)
+* @author       Rovanion Luckey
 * @copyright    2016 Photon Storm Ltd, Richard Davey
 * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
 */
@@ -37158,7 +37059,7 @@ Object.defineProperty(Phaser.RetroFont.prototype, "smoothed", {
 *
 * @class Phaser.Rope
 * @constructor
-* @extends PIXI.Rope
+* @extends PIXI.DisplayObjectContainer
 * @extends Phaser.Component.Core
 * @extends Phaser.Component.Angle
 * @extends Phaser.Component.Animation
@@ -37201,13 +37102,60 @@ Phaser.Rope = function (game, x, y, key, frame, points) {
     */
     this.type = Phaser.ROPE;
 
-    PIXI.Rope.call(this, Phaser.Cache.DEFAULT, this.points);
+    this.points = points;
+
+    PIXI.DisplayObjectContainer.call(this);
+
+    this.texture = Phaser.Cache.DEFAULT;
+
+    // set up the main bits..
+    this.uvs = new Float32Array([0, 1,
+                                      1, 1,
+                                      1, 0,
+                                      0, 1]);
+
+    this.vertices = new Float32Array([0, 0,
+                                            100, 0,
+                                            100, 100,
+                                            0, 100]);
+
+    this.colors = new Float32Array([1, 1, 1, 1]);
+
+    this.indices = new Uint16Array([0, 1, 2, 3]);
+
+    if (points)
+    {
+        this.vertices = new Float32Array(points.length * 4);
+        this.uvs = new Float32Array(points.length * 4);
+        this.colors = new Float32Array(points.length * 2);
+        this.indices = new Uint16Array(points.length * 2);
+    }
+
+    /**
+     * Whether the strip is dirty or not
+     *
+     * @property dirty
+     * @type Boolean
+     */
+    this.dirty = true;
+
+    /**
+     * Triangles in canvas mode are automatically antialiased, use this value to force triangles to overlap a bit with each other.
+     *
+     * @property canvasPadding
+     * @type Number
+     */
+    this.canvasPadding = 0;
+
+    this.drawMode = Phaser.Rope.TRIANGLE_STRIP;
 
     Phaser.Component.Core.init.call(this, game, x, y, key, frame);
 
+    this.refresh();
+
 };
 
-Phaser.Rope.prototype = Object.create(PIXI.Rope.prototype);
+Phaser.Rope.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Phaser.Rope.prototype.constructor = Phaser.Rope;
 
 Phaser.Component.Core.install.call(Phaser.Rope.prototype, [
@@ -37235,13 +37183,16 @@ Phaser.Rope.prototype.preUpdateLifeSpan = Phaser.Component.LifeSpan.preUpdate;
 Phaser.Rope.prototype.preUpdateInWorld = Phaser.Component.InWorld.preUpdate;
 Phaser.Rope.prototype.preUpdateCore = Phaser.Component.Core.preUpdate;
 
+Phaser.Rope.TRIANGLE_STRIP = 0;
+Phaser.Rope.TRIANGLES = 1;
+
 /**
 * Automatically called by World.preUpdate.
 *
 * @method Phaser.Rope#preUpdate
 * @memberof Phaser.Rope
 */
-Phaser.Rope.prototype.preUpdate = function() {
+Phaser.Rope.prototype.preUpdate = function () {
 
     if (!this.preUpdatePhysics() || !this.preUpdateLifeSpan() || !this.preUpdateInWorld())
     {
@@ -37278,11 +37229,590 @@ Phaser.Rope.prototype.update = function() {
 * @param {number} y - The y coordinate (in world space) to position the Sprite at.
 * @return {Phaser.Rope} This instance.
 */
-Phaser.Rope.prototype.reset = function(x, y) {
+Phaser.Rope.prototype.reset = function (x, y) {
 
     Phaser.Component.Reset.prototype.reset.call(this, x, y);
 
     return this;
+
+};
+
+/*
+* Refreshes the rope texture and UV coordinates.
+*
+* @method Phaser.Rope#refresh
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype.refresh = function () {
+
+    var points = this.points;
+
+    if (points.length < 1)
+    {
+        return;
+    }
+
+    var uvs = this.uvs;
+
+    var indices = this.indices;
+    var colors = this.colors;
+
+    this.count -= 0.2;
+
+    uvs[0] = 0;
+    uvs[1] = 0;
+    uvs[2] = 0;
+    uvs[3] = 1;
+
+    colors[0] = 1;
+    colors[1] = 1;
+
+    indices[0] = 0;
+    indices[1] = 1;
+
+    var total = points.length;
+    var index;
+    var amount;
+
+    for (var i = 1; i < total; i++)
+    {
+        index = i * 4;
+
+        // time to do some smart drawing!
+        amount = i / (total - 1);
+
+        if (i % 2)
+        {
+            uvs[index] = amount;
+            uvs[index + 1] = 0;
+
+            uvs[index + 2] = amount;
+            uvs[index + 3] = 1;
+        }
+        else
+        {
+            uvs[index] = amount;
+            uvs[index + 1] = 0;
+
+            uvs[index + 2] = amount;
+            uvs[index + 3] = 1;
+        }
+
+        index = i * 2;
+        colors[index] = 1;
+        colors[index + 1] = 1;
+
+        index = i * 2;
+        indices[index] = index;
+        indices[index + 1] = index + 1;
+    }
+
+};
+
+/*
+* Updates the Ropes transform ready for rendering.
+*
+* @method Phaser.Rope#updateTransform
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype.updateTransform = function () {
+
+    var points = this.points;
+
+    if (points.length < 1)
+    {
+        return;
+    }
+
+    var lastPoint = points[0];
+    var nextPoint;
+    var perp = { x:0, y:0 };
+
+    this.count -= 0.2;
+
+    var vertices = this.vertices;
+    var total = points.length;
+    var point;
+    var index;
+    var ratio;
+    var perpLength;
+    var num;
+
+    for (var i = 0; i < total; i++)
+    {
+        point = points[i];
+        index = i * 4;
+
+        if(i < points.length - 1)
+        {
+            nextPoint = points[i + 1];
+        }
+        else
+        {
+            nextPoint = point;
+        }
+
+        perp.y = -(nextPoint.x - lastPoint.x);
+        perp.x = nextPoint.y - lastPoint.y;
+
+        ratio = (1 - (i / (total - 1))) * 10;
+
+        if (ratio > 1)
+        {
+            ratio = 1;
+        }
+
+        perpLength = Math.sqrt((perp.x * perp.x) + (perp.y * perp.y));
+        num = this.texture.height / 2;
+        perp.x /= perpLength;
+        perp.y /= perpLength;
+
+        perp.x *= num;
+        perp.y *= num;
+
+        vertices[index] = point.x + perp.x;
+        vertices[index + 1] = point.y + perp.y;
+        vertices[index + 2] = point.x - perp.x;
+        vertices[index + 3] = point.y - perp.y;
+
+        lastPoint = point;
+    }
+
+    PIXI.DisplayObjectContainer.prototype.updateTransform.call(this);
+
+};
+
+/*
+* Sets the Texture this Rope uses for rendering.
+*
+* @method Phaser.Rope#setTexture
+* @memberof Phaser.Rope
+* @param {Texture} texture - The texture that will be used.
+*/
+Phaser.Rope.prototype.setTexture = function (texture) {
+
+    this.texture = texture;
+
+};
+
+/*
+* Renders the Rope to WebGL.
+*
+* @private
+* @method Phaser.Rope#_renderWebGL
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderWebGL = function (renderSession) {
+
+    if (!this.visible || this.alpha <= 0)
+    {
+        return;
+    }
+
+    renderSession.spriteBatch.stop();
+
+    if (!this._vertexBuffer)
+    {
+        this._initWebGL(renderSession);
+    }
+
+    renderSession.shaderManager.setShader(renderSession.shaderManager.stripShader);
+
+    this._renderStrip(renderSession);
+
+    renderSession.spriteBatch.start();
+
+};
+
+/*
+* Builds the Strip.
+*
+* @private
+* @method Phaser.Rope#_initWebGL
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._initWebGL = function (renderSession) {
+
+    // build the strip!
+    var gl = renderSession.gl;
+
+    this._vertexBuffer = gl.createBuffer();
+    this._indexBuffer = gl.createBuffer();
+    this._uvBuffer = gl.createBuffer();
+    this._colorBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+};
+
+/*
+* Renders the Strip to WebGL.
+*
+* @private
+* @method Phaser.Rope#_renderStrip
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderStrip = function (renderSession) {
+
+    var gl = renderSession.gl;
+    var projection = renderSession.projection;
+    var offset = renderSession.offset;
+    var shader = renderSession.shaderManager.stripShader;
+
+    var drawMode = (this.drawMode === Phaser.Rope.TRIANGLE_STRIP) ? gl.TRIANGLE_STRIP : gl.TRIANGLES;
+
+    renderSession.blendModeManager.setBlendMode(this.blendMode);
+
+    // set uniforms
+    gl.uniformMatrix3fv(shader.translationMatrix, false, this.worldTransform.toArray(true));
+    gl.uniform2f(shader.projectionVector, projection.x, -projection.y);
+    gl.uniform2f(shader.offsetVector, -offset.x, -offset.y);
+    gl.uniform1f(shader.alpha, this.worldAlpha);
+
+    if (!this.dirty)
+    {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
+        gl.vertexAttribPointer(shader.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // update the uvs
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._uvBuffer);
+        gl.vertexAttribPointer(shader.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+
+        // check if a texture is dirty..
+        if (this.texture.baseTexture._dirty[gl.id])
+        {
+            renderSession.renderer.updateTexture(this.texture.baseTexture);
+        }
+        else
+        {
+            // bind the current texture
+            gl.bindTexture(gl.TEXTURE_2D, this.texture.baseTexture._glTextures[gl.id]);
+        }
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+    }
+    else
+    {
+        this.dirty = false;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(shader.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // update the uvs
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._uvBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(shader.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+
+        // check if a texture is dirty..
+        if (this.texture.baseTexture._dirty[gl.id])
+        {
+            renderSession.renderer.updateTexture(this.texture.baseTexture);
+        }
+        else
+        {
+            gl.bindTexture(gl.TEXTURE_2D, this.texture.baseTexture._glTextures[gl.id]);
+        }
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+    }
+
+    gl.drawElements(drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
+
+};
+
+/*
+* Renders the Strip to Canvas.
+*
+* @private
+* @method Phaser.Rope#_renderCanvas
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderCanvas = function (renderSession) {
+
+    var context = renderSession.context;
+
+    var transform = this.worldTransform;
+
+    var tx = (transform.tx * renderSession.resolution) + renderSession.shakeX;
+    var ty = (transform.ty * renderSession.resolution) + renderSession.shakeY;
+
+    if (renderSession.roundPixels)
+    {
+        context.setTransform(transform.a, transform.b, transform.c, transform.d, tx | 0, ty | 0);
+    }
+    else
+    {
+        context.setTransform(transform.a, transform.b, transform.c, transform.d, tx, ty);
+    }
+
+    if (this.drawMode === Phaser.Rope.TRIANGLE_STRIP)
+    {
+        this._renderCanvasTriangleStrip(context);
+    }
+    else
+    {
+        this._renderCanvasTriangles(context);
+    }
+
+};
+
+/*
+* Renders a Triangle Strip to Canvas.
+*
+* @private
+* @method Phaser.Rope#_renderCanvasTriangleStrip
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderCanvasTriangleStrip = function (context) {
+
+    // draw triangles!!
+    var vertices = this.vertices;
+    var uvs = this.uvs;
+
+    var length = vertices.length / 2;
+
+    this.count++;
+
+    for (var i = 0; i < length - 2; i++)
+    {
+        var index = i * 2;
+        this._renderCanvasDrawTriangle(context, vertices, uvs, index, (index + 2), (index + 4));
+    }
+
+};
+
+/*
+* Renders a Triangle to Canvas.
+*
+* @private
+* @method Phaser.Rope#_renderCanvasTriangles
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderCanvasTriangles = function (context) {
+
+    var vertices = this.vertices;
+    var uvs = this.uvs;
+    var indices = this.indices;
+
+    var length = indices.length;
+
+    this.count++;
+
+    for (var i = 0; i < length; i += 3)
+    {
+        var index0 = indices[i] * 2;
+        var index1 = indices[i + 1] * 2;
+        var index2 = indices[i + 2] * 2;
+
+        this._renderCanvasDrawTriangle(context, vertices, uvs, index0, index1, index2);
+    }
+
+};
+
+/*
+* Renders a Triangle to Canvas.
+*
+* @private
+* @method Phaser.Rope#_renderCanvasDrawTriangle
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype._renderCanvasDrawTriangle = function (context, vertices, uvs, index0, index1, index2) {
+
+    var textureSource = this.texture.baseTexture.source;
+    var textureWidth = this.texture.width;
+    var textureHeight = this.texture.height;
+
+    var x0 = vertices[index0];
+    var x1 = vertices[index1];
+    var x2 = vertices[index2];
+    var y0 = vertices[index0 + 1];
+    var y1 = vertices[index1 + 1];
+    var y2 = vertices[index2 + 1];
+
+    var u0 = uvs[index0] * textureWidth;
+    var u1 = uvs[index1] * textureWidth;
+    var u2 = uvs[index2] * textureWidth;
+    var v0 = uvs[index0 + 1] * textureHeight;
+    var v1 = uvs[index1 + 1] * textureHeight;
+    var v2 = uvs[index2 + 1] * textureHeight;
+
+    if (this.canvasPadding > 0)
+    {
+        var paddingX = this.canvasPadding / this.worldTransform.a;
+        var paddingY = this.canvasPadding / this.worldTransform.d;
+        var centerX = (x0 + x1 + x2) / 3;
+        var centerY = (y0 + y1 + y2) / 3;
+
+        var normX = x0 - centerX;
+        var normY = y0 - centerY;
+
+        var dist = Math.sqrt((normX * normX) + (normY * normY));
+        x0 = centerX + (normX / dist) * (dist + paddingX);
+        y0 = centerY + (normY / dist) * (dist + paddingY);
+
+        normX = x1 - centerX;
+        normY = y1 - centerY;
+
+        dist = Math.sqrt((normX * normX) + (normY * normY));
+        x1 = centerX + (normX / dist) * (dist + paddingX);
+        y1 = centerY + (normY / dist) * (dist + paddingY);
+
+        normX = x2 - centerX;
+        normY = y2 - centerY;
+
+        dist = Math.sqrt((normX * normX) + (normY * normY));
+        x2 = centerX + (normX / dist) * (dist + paddingX);
+        y2 = centerY + (normY / dist) * (dist + paddingY);
+    }
+
+    context.save();
+    context.beginPath();
+
+    context.moveTo(x0, y0);
+    context.lineTo(x1, y1);
+    context.lineTo(x2, y2);
+
+    context.closePath();
+
+    context.clip();
+
+    // Compute matrix transform
+    var delta =  (u0 * v1)      + (v0 * u2)      + (u1 * v2)      - (v1 * u2)      - (v0 * u1)      - (u0 * v2);
+    var deltaA = (x0 * v1)      + (v0 * x2)      + (x1 * v2)      - (v1 * x2)      - (v0 * x1)      - (x0 * v2);
+    var deltaB = (u0 * x1)      + (x0 * u2)      + (u1 * x2)      - (x1 * u2)      - (x0 * u1)      - (u0 * x2);
+    var deltaC = (u0 * v1 * x2) + (v0 * x1 * u2) + (x0 * u1 * v2) - (x0 * v1 * u2) - (v0 * u1 * x2) - (u0 * x1 * v2);
+    var deltaD = (y0 * v1)      + (v0 * y2)      + (y1 * v2)      - (v1 * y2)      - (v0 * y1)      - (y0 * v2);
+    var deltaE = (u0 * y1)      + (y0 * u2)      + (u1 * y2)      - (y1 * u2)      - (y0 * u1)      - (u0 * y2);
+    var deltaF = (u0 * v1 * y2) + (v0 * y1 * u2) + (y0 * u1 * v2) - (y0 * v1 * u2) - (v0 * u1 * y2) - (u0 * y1 * v2);
+
+    context.transform(
+        deltaA / delta,
+        deltaD / delta,
+        deltaB / delta,
+        deltaE / delta,
+        deltaC / delta,
+        deltaF / delta);
+
+    context.drawImage(textureSource, 0, 0);
+    context.restore();
+
+};
+
+/*
+* Renders a flat strip.
+*
+* @method Phaser.Rope#renderStripFlat
+* @memberof Phaser.Rope
+*/
+Phaser.Rope.prototype.renderStripFlat = function (strip) {
+
+    var context = this.context;
+    var vertices = strip.vertices;
+
+    var length = vertices.length / 2;
+
+    this.count++;
+
+    context.beginPath();
+
+    for (var i = 1; i < length - 2; i++)
+    {
+        // draw some triangles!
+        var index = i * 2;
+
+        var x0 = vertices[index];
+        var x1 = vertices[index + 2];
+        var x2 = vertices[index + 4];
+        var y0 = vertices[index + 1];
+        var y1 = vertices[index + 3];
+        var y2 = vertices[index + 5];
+
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.lineTo(x2, y2);
+    }
+
+    context.fillStyle = '#FF0000';
+    context.fill();
+    context.closePath();
+
+};
+
+/*
+* Returns the bounds of the mesh as a rectangle. The bounds calculation takes the worldTransform into account.
+*
+* @method Phaser.Rope#getBounds
+* @memberof Phaser.Rope
+* @param {Matrix} matrix - The transformation matrix of the Sprite.
+* @return {Rectangle} The framing rectangle.
+*/
+Phaser.Rope.prototype.getBounds = function (matrix) {
+
+    var worldTransform = matrix || this.worldTransform;
+
+    var a = worldTransform.a;
+    var b = worldTransform.b;
+    var c = worldTransform.c;
+    var d = worldTransform.d;
+    var tx = worldTransform.tx;
+    var ty = worldTransform.ty;
+
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+
+    var minX = Infinity;
+    var minY = Infinity;
+
+    var vertices = this.vertices;
+
+    for (var i = 0; i < vertices.length; i += 2)
+    {
+        var rawX = vertices[i];
+        var rawY = vertices[i + 1];
+        var x = (a * rawX) + (c * rawY) + tx;
+        var y = (d * rawY) + (b * rawX) + ty;
+
+        minX = x < minX ? x : minX;
+        minY = y < minY ? y : minY;
+
+        maxX = x > maxX ? x : maxX;
+        maxY = y > maxY ? y : maxY;
+    }
+
+    if (minX === -Infinity || maxY === Infinity)
+    {
+        return PIXI.EmptyRectangle;
+    }
+
+    var bounds = this._bounds;
+
+    bounds.x = minX;
+    bounds.width = maxX - minX;
+
+    bounds.y = minY;
+    bounds.height = maxY - minY;
+
+    //  Store a reference so that if this function gets called again in the render cycle we do not have to recalculate
+    this._currentBounds = bounds;
+
+    return bounds;
 
 };
 
@@ -37325,7 +37855,7 @@ Object.defineProperty(Phaser.Rope.prototype, "updateAnimation", {
 */
 Object.defineProperty(Phaser.Rope.prototype, "segments", {
 
-    get: function() {
+    get: function () {
 
         var segments = [];
         var index, x1, y1, x2, y2, width, height, rect;
@@ -37384,7 +37914,7 @@ Object.defineProperty(Phaser.Rope.prototype, "segments", {
 *
 * @class Phaser.TileSprite
 * @constructor
-* @extends PIXI.TilingSprite
+* @extends PIXI.Sprite
 * @extends Phaser.Component.Core
 * @extends Phaser.Component.Angle
 * @extends Phaser.Component.Animation
@@ -37404,10 +37934,10 @@ Object.defineProperty(Phaser.Rope.prototype, "segments", {
 * @extends Phaser.Component.Reset
 * @extends Phaser.Component.Smoothed
 * @param {Phaser.Game} game - A reference to the currently running game.
-* @param {number} x - The x coordinate (in world space) to position the TileSprite at.
-* @param {number} y - The y coordinate (in world space) to position the TileSprite at.
-* @param {number} width - The width of the TileSprite.
-* @param {number} height - The height of the TileSprite.
+* @param {number} [x=0] - The x coordinate (in world space) to position the TileSprite at.
+* @param {number} [y=0] - The y coordinate (in world space) to position the TileSprite at.
+* @param {number} [width=256] - The width of the TileSprite.
+* @param {number} [height=256] - The height of the TileSprite.
 * @param {string|Phaser.BitmapData|PIXI.Texture} key - This is the image or texture used by the TileSprite during rendering. It can be a string which is a reference to the Phaser Image Cache entry, or an instance of a PIXI.Texture or BitmapData.
 * @param {string|number} frame - If this TileSprite is using part of a sprite sheet or texture atlas you can specify the exact frame to use by giving a string or numeric index.
 */
@@ -37419,6 +37949,10 @@ Phaser.TileSprite = function (game, x, y, width, height, key, frame) {
     height = height || 256;
     key = key || null;
     frame = frame || null;
+
+    var def = game.cache.getImage('__default', true);
+
+    PIXI.Sprite.call(this, new PIXI.Texture(def.base), width, height);
 
     /**
     * @property {number} type - The const type of this object.
@@ -37438,15 +37972,69 @@ Phaser.TileSprite = function (game, x, y, width, height, key, frame) {
     */
     this._scroll = new Phaser.Point();
 
-    var def = game.cache.getImage('__default', true);
+    /**
+    * @property {Phaser.Point} tileScale - The scale applied to the image being tiled.
+    */
+    this.tileScale = new Phaser.Point(1, 1);
 
-    PIXI.TilingSprite.call(this, new PIXI.Texture(def.base), width, height);
+    /**
+    * @property {Phaser.Point} tileScaleOffset - The scale offset applied to the image being tiled.
+    */
+    this.tileScaleOffset = new Phaser.Point(1, 1);
+    
+    /**
+    * @property {Phaser.Point} tilePosition - The offset position of the image being tiled.
+    */
+    this.tilePosition = new Phaser.Point();
+
+    /**
+    * If enabled a green rectangle will be drawn behind the generated tiling texture,
+    * allowing you to visually debug the texture being used.
+    *
+    * @property {boolean} textureDebug
+    */
+    this.textureDebug = false;
+
+    /**
+    * The CanvasBuffer object that the tiled texture is drawn to.
+    *
+    * @property {PIXI.CanvasBuffer} canvasBuffer
+    */
+    this.canvasBuffer = null;
+
+    /**
+    * An internal Texture object that holds the tiling texture that was generated from TilingSprite.texture.
+    *
+    * @property {PIXI.Texture} tilingTexture
+    */
+    this.tilingTexture = null;
+
+    /**
+    * The Context fill pattern that is used to draw the TilingSprite in Canvas mode only (will be null in WebGL).
+    *
+    * @property {object} tilePattern
+    */
+    this.tilePattern = null;
+
+    /**
+    * If true the TileSprite will run `generateTexture` on its **next** render pass.
+    * This is set by the likes of Phaser.LoadTexture.setFrame.
+    *
+    * @property {boolean} refreshTexture
+    */
+    this.refreshTexture = true;
+
+    this.frameWidth = 0;
+    this.frameHeight = 0;
+
+    this._width = width;
+    this._height = height;
 
     Phaser.Component.Core.init.call(this, game, x, y, key, frame);
 
 };
 
-Phaser.TileSprite.prototype = Object.create(PIXI.TilingSprite.prototype);
+Phaser.TileSprite.prototype = Object.create(PIXI.Sprite.prototype);
 Phaser.TileSprite.prototype.constructor = Phaser.TileSprite;
 
 Phaser.Component.Core.install.call(Phaser.TileSprite.prototype, [
@@ -37479,8 +38067,9 @@ Phaser.TileSprite.prototype.preUpdateCore = Phaser.Component.Core.preUpdate;
 *
 * @method Phaser.TileSprite#preUpdate
 * @memberof Phaser.TileSprite
+* @return {boolean}
 */
-Phaser.TileSprite.prototype.preUpdate = function() {
+Phaser.TileSprite.prototype.preUpdate = function () {
 
     if (this._scroll.x !== 0)
     {
@@ -37511,10 +38100,13 @@ Phaser.TileSprite.prototype.preUpdate = function() {
 * @memberof Phaser.TileSprite
 * @param {number} x - Horizontal scroll speed in pixels per second.
 * @param {number} y - Vertical scroll speed in pixels per second.
+* @return {Phaser.TileSprite} This instance.
 */
-Phaser.TileSprite.prototype.autoScroll = function(x, y) {
+Phaser.TileSprite.prototype.autoScroll = function (x, y) {
 
     this._scroll.set(x, y);
+
+    return this;
 
 };
 
@@ -37523,10 +38115,13 @@ Phaser.TileSprite.prototype.autoScroll = function(x, y) {
 *
 * @method Phaser.TileSprite#stopScroll
 * @memberof Phaser.TileSprite
+* @return {Phaser.TileSprite} This instance.
 */
-Phaser.TileSprite.prototype.stopScroll = function() {
+Phaser.TileSprite.prototype.stopScroll = function () {
 
     this._scroll.set(0, 0);
+
+    return this;
 
 };
 
@@ -37538,11 +38133,27 @@ Phaser.TileSprite.prototype.stopScroll = function() {
 * @memberof Phaser.TileSprite
 * @param {boolean} [destroyChildren=true] - Should every child of this object have its destroy method called?
 */
-Phaser.TileSprite.prototype.destroy = function(destroyChildren) {
+Phaser.TileSprite.prototype.destroy = function (destroyChildren) {
 
     Phaser.Component.Destroy.prototype.destroy.call(this, destroyChildren);
 
-    PIXI.TilingSprite.prototype.destroy.call(this);
+    PIXI.Sprite.prototype.destroy.call(this);
+
+    if (this.canvasBuffer)
+    {
+        this.canvasBuffer.destroy();
+        this.canvasBuffer = null;
+    }
+
+    this.tileScale = null;
+    this.tileScaleOffset = null;
+    this.tilePosition = null;
+
+    if (this.tilingTexture)
+    {
+        this.tilingTexture.destroy(true);
+        this.tilingTexture = null;
+    }
 
 };
 
@@ -37557,7 +38168,7 @@ Phaser.TileSprite.prototype.destroy = function(destroyChildren) {
 * @param {number} y - The y coordinate (in world space) to position the Sprite at.
 * @return {Phaser.TileSprite} This instance.
 */
-Phaser.TileSprite.prototype.reset = function(x, y) {
+Phaser.TileSprite.prototype.reset = function (x, y) {
 
     Phaser.Component.Reset.prototype.reset.call(this, x, y);
 
@@ -37567,6 +38178,626 @@ Phaser.TileSprite.prototype.reset = function(x, y) {
     return this;
 
 };
+
+/**
+* Changes the texture being rendered by this TileSprite.
+* Causes a texture refresh to take place on the next render.
+*
+* @method Phaser.TileSprite#setTexture
+* @memberof Phaser.TileSprite
+* @param {PIXI.Texture} texture - The texture to apply to this TileSprite.
+* @return {Phaser.TileSprite} This instance.
+*/
+Phaser.TileSprite.prototype.setTexture = function (texture) {
+
+    if (this.texture !== texture)
+    {
+        this.texture = texture;
+        this.refreshTexture = true;
+        this.cachedTint = 0xFFFFFF;
+    }
+
+    return this;
+
+};
+
+/**
+* Renders the TileSprite using the WebGL Renderer.
+*
+* @private
+* @method Phaser.TileSprite#_renderWebGL
+* @memberof Phaser.TileSprite
+* @param {object} renderSession
+*/
+Phaser.TileSprite.prototype._renderWebGL = function (renderSession) {
+
+    if (!this.visible || !this.renderable || this.alpha === 0)
+    {
+        return;
+    }
+
+    if (this._mask)
+    {
+        renderSession.spriteBatch.stop();
+        renderSession.maskManager.pushMask(this.mask, renderSession);
+        renderSession.spriteBatch.start();
+    }
+
+    if (this._filters)
+    {
+        renderSession.spriteBatch.flush();
+        renderSession.filterManager.pushFilter(this._filterBlock);
+    }
+
+    if (this.refreshTexture)
+    {
+        this.generateTilingTexture(true, renderSession);
+
+        if (this.tilingTexture)
+        {
+            if (this.tilingTexture.needsUpdate)
+            {
+                this.tilingTexture.baseTexture.textureIndex = this.texture.baseTexture.textureIndex;
+                renderSession.renderer.updateTexture(this.tilingTexture.baseTexture);
+                this.tilingTexture.needsUpdate = false;
+            }
+        }
+        else
+        {
+            return;
+        }
+    }
+    
+    renderSession.spriteBatch.renderTilingSprite(this);
+
+    for (var i = 0; i < this.children.length; i++)
+    {
+        this.children[i]._renderWebGL(renderSession);
+    }
+
+    var restartBatch = false;
+
+    if (this._filters)
+    {
+        restartBatch = true;
+        renderSession.spriteBatch.stop();
+        renderSession.filterManager.popFilter();
+    }
+
+    if (this._mask)
+    {
+        if (!restartBatch)
+        {
+            renderSession.spriteBatch.stop();
+        }
+
+        renderSession.maskManager.popMask(this._mask, renderSession);
+    }
+
+    if (restartBatch)
+    {
+        renderSession.spriteBatch.start();
+    }
+    
+};
+
+/**
+* Renders the TileSprite using the Canvas Renderer.
+*
+* @private
+* @method Phaser.TileSprite#_renderCanvas
+* @memberof Phaser.TileSprite
+* @param {object} renderSession
+*/
+Phaser.TileSprite.prototype._renderCanvas = function (renderSession) {
+
+    if (!this.visible || !this.renderable || this.alpha === 0)
+    {
+        return;
+    }
+    
+    var context = renderSession.context;
+
+    if (this._mask)
+    {
+        renderSession.maskManager.pushMask(this._mask, renderSession);
+    }
+
+    context.globalAlpha = this.worldAlpha;
+    
+    var wt = this.worldTransform;
+    var resolution = renderSession.resolution;
+    var tx = (wt.tx * resolution) + renderSession.shakeX;
+    var ty = (wt.ty * resolution) + renderSession.shakeY;
+
+    context.setTransform(wt.a * resolution, wt.b * resolution, wt.c * resolution, wt.d * resolution, tx, ty);
+
+    if (this.refreshTexture)
+    {
+        this.generateTilingTexture(false, renderSession);
+    
+        if (this.tilingTexture)
+        {
+            this.tilePattern = context.createPattern(this.tilingTexture.baseTexture.source, 'repeat');
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    var sessionBlendMode = renderSession.currentBlendMode;
+
+    //  Check blend mode
+    if (this.blendMode !== renderSession.currentBlendMode)
+    {
+        renderSession.currentBlendMode = this.blendMode;
+        context.globalCompositeOperation = PIXI.blendModesCanvas[renderSession.currentBlendMode];
+    }
+
+    var tilePosition = this.tilePosition;
+    var tileScale = this.tileScale;
+
+    tilePosition.x %= this.tilingTexture.baseTexture.width;
+    tilePosition.y %= this.tilingTexture.baseTexture.height;
+
+    //  Translate
+    context.scale(tileScale.x, tileScale.y);
+    context.translate(tilePosition.x + (this.anchor.x * -this._width), tilePosition.y + (this.anchor.y * -this._height));
+
+    context.fillStyle = this.tilePattern;
+
+    tx = -tilePosition.x;
+    ty = -tilePosition.y;
+
+    var tw = this._width / tileScale.x;
+    var th = this._height / tileScale.y;
+
+    //  Allow for pixel rounding
+    if (renderSession.roundPixels)
+    {
+        tx |= 0;
+        ty |= 0;
+        tw |= 0;
+        th |= 0;
+    }
+
+    context.fillRect(tx, ty, tw, th);
+
+    //  Translate back again
+    context.scale(1 / tileScale.x, 1 / tileScale.y);
+    context.translate(-tilePosition.x + (this.anchor.x * this._width), -tilePosition.y + (this.anchor.y * this._height));
+
+    if (this._mask)
+    {
+        renderSession.maskManager.popMask(renderSession);
+    }
+
+    for (var i = 0; i < this.children.length; i++)
+    {
+        this.children[i]._renderCanvas(renderSession);
+    }
+
+    //  Reset blend mode
+    if (sessionBlendMode !== this.blendMode)
+    {
+        renderSession.currentBlendMode = sessionBlendMode;
+        context.globalCompositeOperation = PIXI.blendModesCanvas[sessionBlendMode];
+    }
+
+};
+
+/**
+* Override the Sprite method.
+*
+* @private
+* @method Phaser.TileSprite#onTextureUpdate
+* @memberof Phaser.TileSprite
+*/
+Phaser.TileSprite.prototype.onTextureUpdate = function () {
+
+   // overriding the sprite version of this!
+
+};
+
+/**
+* Internal method that generates a new tiling texture.
+*
+* @method Phaser.TileSprite#generateTilingTexture
+* @memberof Phaser.TileSprite
+* @param {boolean} forcePowerOfTwo - Whether we want to force the texture to be a power of two
+*/
+Phaser.TileSprite.prototype.generateTilingTexture = function (forcePowerOfTwo) {
+
+    if (!this.texture.baseTexture.hasLoaded)
+    {
+        return;
+    }
+
+    var texture = this.texture;
+    var frame = texture.frame;
+
+    var targetWidth = this._frame.sourceSizeW || this._frame.width;
+    var targetHeight = this._frame.sourceSizeH || this._frame.height;
+
+    var dx = 0;
+    var dy = 0;
+
+    if (this._frame.trimmed)
+    {
+        dx = this._frame.spriteSourceSizeX;
+        dy = this._frame.spriteSourceSizeY;
+    }
+
+    if (forcePowerOfTwo)
+    {
+        targetWidth = Phaser.Math.getNextPowerOfTwo(targetWidth);
+        targetHeight = Phaser.Math.getNextPowerOfTwo(targetHeight);
+    }
+
+    if (this.canvasBuffer)
+    {
+        this.canvasBuffer.resize(targetWidth, targetHeight);
+        this.tilingTexture.baseTexture.width = targetWidth;
+        this.tilingTexture.baseTexture.height = targetHeight;
+        this.tilingTexture.needsUpdate = true;
+    }
+    else
+    {
+        this.canvasBuffer = new PIXI.CanvasBuffer(targetWidth, targetHeight);
+        this.tilingTexture = PIXI.Texture.fromCanvas(this.canvasBuffer.canvas);
+        this.tilingTexture.isTiling = true;
+        this.tilingTexture.needsUpdate = true;
+    }
+
+    if (this.textureDebug)
+    {
+        this.canvasBuffer.context.strokeStyle = '#00ff00';
+        this.canvasBuffer.context.strokeRect(0, 0, targetWidth, targetHeight);
+    }
+
+    //  If a sprite sheet we need this:
+    var w = texture.crop.width;
+    var h = texture.crop.height;
+
+    if (w !== targetWidth || h !== targetHeight)
+    {
+        w = targetWidth;
+        h = targetHeight;
+    }
+
+    this.canvasBuffer.context.drawImage(
+        texture.baseTexture.source,
+        texture.crop.x,
+        texture.crop.y,
+        texture.crop.width,
+        texture.crop.height,
+        dx,
+        dy,
+        w,
+        h
+    );
+
+    this.tileScaleOffset.x = frame.width / targetWidth;
+    this.tileScaleOffset.y = frame.height / targetHeight;
+
+    this.refreshTexture = false;
+
+    this.tilingTexture.baseTexture._powerOf2 = true;
+
+};
+
+/**
+* Returns the framing rectangle of the Tile Sprite.
+*
+* @method Phaser.TileSprite#getBounds
+* @memberof Phaser.TileSprite
+* @return {Phaser.Rectangle} The bounds of the Tile Sprite.
+*/
+Phaser.TileSprite.prototype.getBounds = function () {
+
+    var width = this._width;
+    var height = this._height;
+
+    var w0 = width * (1 - this.anchor.x);
+    var w1 = width * -this.anchor.x;
+
+    var h0 = height * (1 - this.anchor.y);
+    var h1 = height * -this.anchor.y;
+
+    var worldTransform = this.worldTransform;
+
+    var a = worldTransform.a;
+    var b = worldTransform.b;
+    var c = worldTransform.c;
+    var d = worldTransform.d;
+    var tx = worldTransform.tx;
+    var ty = worldTransform.ty;
+    
+    var x1 = (a * w1) + (c * h1) + tx;
+    var y1 = (d * h1) + (b * w1) + ty;
+
+    var x2 = (a * w0) + (c * h1) + tx;
+    var y2 = (d * h1) + (b * w0) + ty;
+
+    var x3 = (a * w0) + (c * h0) + tx;
+    var y3 = (d * h0) + (b * w0) + ty;
+
+    var x4 =  a * w1 + c * h0 + tx;
+    var y4 =  d * h0 + b * w1 + ty;
+
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+
+    var minX = Infinity;
+    var minY = Infinity;
+
+    minX = x1 < minX ? x1 : minX;
+    minX = x2 < minX ? x2 : minX;
+    minX = x3 < minX ? x3 : minX;
+    minX = x4 < minX ? x4 : minX;
+
+    minY = y1 < minY ? y1 : minY;
+    minY = y2 < minY ? y2 : minY;
+    minY = y3 < minY ? y3 : minY;
+    minY = y4 < minY ? y4 : minY;
+
+    maxX = x1 > maxX ? x1 : maxX;
+    maxX = x2 > maxX ? x2 : maxX;
+    maxX = x3 > maxX ? x3 : maxX;
+    maxX = x4 > maxX ? x4 : maxX;
+
+    maxY = y1 > maxY ? y1 : maxY;
+    maxY = y2 > maxY ? y2 : maxY;
+    maxY = y3 > maxY ? y3 : maxY;
+    maxY = y4 > maxY ? y4 : maxY;
+
+    //  TODO: This is surely always undefined? As it's not set anywhere in the parent objects
+    var bounds = this._bounds;
+
+    bounds.x = minX;
+    bounds.width = maxX - minX;
+
+    bounds.y = minY;
+    bounds.height = maxY - minY;
+
+    // store a reference so that if this function gets called again in the render cycle we do not have to recalculate
+    this._currentBounds = bounds;
+
+    return bounds;
+
+};
+
+/**
+* The width of the sprite, setting this will actually modify the scale to achieve the value set
+*
+* @property width
+* @type Number
+*/
+Object.defineProperty(Phaser.TileSprite.prototype, 'width', {
+
+    get: function () {
+
+        return this._width;
+
+    },
+
+    set: function (value) {
+
+        this._width = value;
+
+    }
+
+});
+
+/**
+* The height of the TilingSprite, setting this will actually modify the scale to achieve the value set
+*
+* @property height
+* @type Number
+*/
+Object.defineProperty(Phaser.TileSprite.prototype, 'height', {
+
+    get: function () {
+
+        return this._height;
+
+    },
+
+    set: function (value) {
+
+        this._height = value;
+
+    }
+
+});
+
+/**
+* @author       Richard Davey <rich@photonstorm.com>
+* @copyright    2016 Photon Storm Ltd.
+* @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
+*/
+
+/**
+* The CanvasPool is a global static object, that allows Phaser to recycle and pool Canvas DOM elements.
+*
+* @class Phaser.CanvasPool
+* @static
+*/
+Phaser.CanvasPool = {
+
+    /**
+    * Creates a new Canvas DOM element, or pulls one from the pool if free.
+    * 
+    * @method Phaser.CanvasPool.create
+    * @static
+    * @param {any} parent - The parent of the canvas element.
+    * @param {number} width - The width of the canvas element.
+    * @param {number} height - The height of the canvas element.
+    * @return {HTMLCanvasElement} The canvas element.
+    */
+    create: function (parent, width, height) {
+
+        var idx = Phaser.CanvasPool.getFirst();
+        var canvas;
+
+        if (idx === -1)
+        {
+            var container = {
+                parent: parent,
+                canvas: document.createElement('canvas')
+            };
+
+            Phaser.CanvasPool.pool.push(container);
+
+            canvas = container.canvas;
+        }
+        else
+        {
+            Phaser.CanvasPool.pool[idx].parent = parent;
+
+            canvas = Phaser.CanvasPool.pool[idx].canvas;
+        }
+
+        if (width !== undefined)
+        {
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        return canvas;
+
+    },
+
+    /**
+    * Gets the first free canvas index from the pool.
+    * 
+    * @static
+    * @method Phaser.CanvasPool.getFirst
+    * @return {number}
+    */
+    getFirst: function () {
+
+        var pool = Phaser.CanvasPool.pool;
+
+        for (var i = 0; i < pool.length; i++)
+        {
+            if (!pool[i].parent)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+
+    },
+
+    /**
+    * Looks up a canvas based on its parent, and if found puts it back in the pool, freeing it up for re-use.
+    * The canvas has its width and height set to 1, and its parent attribute nulled.
+    * 
+    * @static
+    * @method Phaser.CanvasPool.remove
+    * @param {any} parent - The parent of the canvas element.
+    */
+    remove: function (parent) {
+
+        var pool = Phaser.CanvasPool.pool;
+
+        for (var i = 0; i < pool.length; i++)
+        {
+            if (pool[i].parent === parent)
+            {
+                pool[i].parent = null;
+                pool[i].canvas.width = 1;
+                pool[i].canvas.height = 1;
+            }
+        }
+
+    },
+
+    /**
+    * Looks up a canvas based on its type, and if found puts it back in the pool, freeing it up for re-use.
+    * The canvas has its width and height set to 1, and its parent attribute nulled.
+    * 
+    * @static
+    * @method Phaser.CanvasPool.removeByCanvas
+    * @param {HTMLCanvasElement} canvas - The canvas element to remove.
+    */
+    removeByCanvas: function (canvas) {
+
+        var pool = Phaser.CanvasPool.pool;
+
+        for (var i = 0; i < pool.length; i++)
+        {
+            if (pool[i].canvas === canvas)
+            {
+                pool[i].parent = null;
+                pool[i].canvas.width = 1;
+                pool[i].canvas.height = 1;
+            }
+        }
+
+    },
+
+    /**
+    * Gets the total number of used canvas elements in the pool.
+    * 
+    * @static
+    * @method Phaser.CanvasPool.getTotal
+    * @return {number} The number of in-use (parented) canvas elements in the pool.
+    */
+    getTotal: function () {
+
+        var pool = Phaser.CanvasPool.pool;
+        var c = 0;
+
+        for (var i = 0; i < pool.length; i++)
+        {
+            if (pool[i].parent)
+            {
+                c++;
+            }
+        }
+
+        return c;
+
+    },
+
+    /**
+    * Gets the total number of free canvas elements in the pool.
+    * 
+    * @static
+    * @method Phaser.CanvasPool.getFree
+    * @return {number} The number of free (un-parented) canvas elements in the pool.
+    */
+    getFree: function () {
+
+        var pool = Phaser.CanvasPool.pool;
+        var c = 0;
+
+        for (var i = 0; i < pool.length; i++)
+        {
+            if (!pool[i].parent)
+            {
+                c++;
+            }
+        }
+
+        return c;
+
+    }
+
+};
+
+/**
+ * The pool into which the canvas elements are placed.
+ *
+ * @property pool
+ * @type Array
+ * @static
+ */
+Phaser.CanvasPool.pool = [];
 
 /**
 * @author       Richard Davey <rich@photonstorm.com>
@@ -37730,6 +38961,20 @@ Phaser.Device = function () {
     * @default
     */
     this.canvasBitBltShift = null;
+
+    /**
+    * If the browser isn't capable of handling tinting with alpha this will be false.
+    * @property {boolean} canHandleAlpha
+    * @default
+    */
+    this.canHandleAlpha = false;
+
+    /**
+    * Whether or not the Canvas BlendModes are supported, consequently the ability to tint using the multiply method.
+    * @property {boolean} canUseMultiply
+    * @default
+    */
+    this.canUseMultiply = false;
 
     /**
     * @property {boolean} webGL - Is webGL available?
@@ -38293,6 +39538,71 @@ Phaser.Device._initialize = function () {
     }
 
     /**
+    * Checks if the browser correctly supports putImageData alpha channels.
+    * If the browser isn't capable of handling tinting with alpha, `Device.canHandleAlpha` will be false.
+    * Also checks whether the Canvas BlendModes are supported by the current browser for drawImage.
+    */
+    function _checkCanvasFeatures () {
+
+        var canvas = Phaser.CanvasPool.create(this, 6, 1);
+        var context = canvas.getContext('2d');
+
+        context.fillStyle = 'rgba(10, 20, 30, 0.5)';
+
+        //  Draw a single pixel
+        context.fillRect(0, 0, 1, 1);
+
+        //  Get the color values
+        var s1 = context.getImageData(0, 0, 1, 1);
+
+        if (s1)
+        {
+            //  Plot them to x2
+            context.putImageData(s1, 1, 0);
+
+            //  Get those values
+            var s2 = context.getImageData(1, 0, 1, 1);
+
+            //  Compare and set
+            device.canHandleAlpha = (
+                s2.data[0] === s1.data[0] &&
+                s2.data[1] === s1.data[1] &&
+                s2.data[2] === s1.data[2] &&
+                s2.data[3] === s1.data[3]
+            );
+        }
+
+        //  Checks whether the Canvas BlendModes are supported by the current browser for drawImage.
+
+        var pngHead = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAABAQMAAADD8p2OAAAAA1BMVEX/';
+        var pngEnd = 'AAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
+
+        var magenta = new Image();
+        magenta.src = pngHead + 'AP804Oa6' + pngEnd;
+
+        var yellow = new Image();
+        yellow.src = pngHead + '/wCKxvRF' + pngEnd;
+
+        context.clearRect(0, 0, 6, 1);
+
+        context.globalCompositeOperation = 'multiply';
+        context.drawImage(magenta, 0, 0);
+        context.drawImage(yellow, 2, 0);
+
+        if (context.getImageData(2, 0, 1, 1))
+        {
+            var data = context.getImageData(2, 0, 1, 1).data;
+
+            device.canUseMultiply = (data[0] === 255 && data[1] === 0 && data[2] === 0);
+        }
+
+        Phaser.CanvasPool.removeByCanvas(canvas);
+
+        PIXI.CanvasTinter.tintMethod = (device.canUseMultiply) ? PIXI.CanvasTinter.tintWithMultiply : PIXI.CanvasTinter.tintWithPerPixel;
+
+    }
+
+    /**
     * Check HTML5 features of the host environment.
     */
     function _checkFeatures () {
@@ -38720,7 +40030,7 @@ Phaser.Device._initialize = function () {
             return false;
         }
 
-        var elem = PIXI.CanvasPool.create(this, 1, 1);
+        var elem = Phaser.CanvasPool.create(this, 1, 1);
         var ctx = elem.getContext('2d');
 
         if (!ctx)
@@ -38730,7 +40040,7 @@ Phaser.Device._initialize = function () {
 
         var image = ctx.createImageData(1, 1);
 
-        PIXI.CanvasPool.remove(this);
+        Phaser.CanvasPool.remove(this);
 
         return image.data instanceof Uint8ClampedArray;
 
@@ -38812,6 +40122,7 @@ Phaser.Device._initialize = function () {
     _checkCSS3D();
     _checkDevice();
     _checkFeatures();
+    _checkCanvasFeatures();
     _checkFullScreenSupport();
     _checkInput();
 
@@ -38976,7 +40287,7 @@ Phaser.Canvas = {
         width = width || 256;
         height = height || 256;
 
-        var canvas = (skipPool) ? document.createElement('canvas') : PIXI.CanvasPool.create(parent, width, height);
+        var canvas = (skipPool) ? document.createElement('canvas') : Phaser.CanvasPool.create(parent, width, height);
 
         if (typeof id === 'string' && id !== '')
         {
@@ -39446,16 +40757,146 @@ Phaser.Math = {
     PI2: Math.PI * 2,
 
     /**
-    * Returns a number between the `min` and `max` values.
+    * Degrees to Radians factor.
+    * @property {number} Phaser.Math#DEG_TO_RAD
+    */
+    DEG_TO_RAD: Math.PI / 180,
+
+    /**
+    * Degrees to Radians factor.
+    * @property {number} Phaser.Math#RAD_TO_DEG
+    */
+    RAD_TO_DEG: 180 / Math.PI,
+
+    /**
+    * Convert degrees to radians.
+    *
+    * @method Phaser.Math#degToRad
+    * @param {number} degrees - Angle in degrees.
+    * @return {number} Angle in radians.
+    */
+    degToRad: function (degrees) {
+
+        return degrees * Phaser.Math.DEG_TO_RAD;
+
+    },
+
+    /**
+    * Convert radians to degrees.
+    *
+    * @method Phaser.Math#radToDeg
+    * @param {number} radians - Angle in radians.
+    * @return {number} Angle in degrees
+    */
+    radToDeg: function (radians) {
+
+        return radians * Phaser.Math.RAD_TO_DEG;
+
+    },
+
+    /**
+    * Given a number, this function returns the closest number that is a power of two.
+    * This function is from the Starling Framework.
+    *
+    * @method Phaser.Math#getNextPowerOfTwo
+    * @param {number} value - The value to get the closest power of two from.
+    * @return {number} The closest number that is a power of two.
+    */
+    getNextPowerOfTwo: function (value) {
+
+        if (value > 0 && (value & (value - 1)) === 0)
+        {
+            //  http://goo.gl/D9kPj
+            return value;
+        }
+        else
+        {
+            var result = 1;
+
+            while (result < value)
+            {
+                result <<= 1;
+            }
+
+            return result;
+        }
+
+    },
+
+    /**
+    * Checks if the given dimensions make a power of two texture.
+    * 
+    * @method Phaser.Math#isPowerOfTwo
+    * @param {number} width - The width to check.
+    * @param {number} height - The height to check.
+    * @return {boolean} True if the width and height are a power of two.
+    */
+    isPowerOfTwo: function (width, height) {
+
+        return (width > 0 && (width & (width - 1)) === 0 && height > 0 && (height & (height - 1)) === 0);
+
+    },
+
+    /**
+    * Returns a random float in the range `[min, max)`. If these parameters are not in order than they will be put in order.
+    * Default is 0 for `min` and 1 for `max`.
+    *
+    * @method Phaser.Math#random
+    * @param {number} min - The minimum value. Must be a Number.
+    * @param {number} max - The maximum value. Must be a Number.
+    * @return {number} A floating point number between min (inclusive) and max (exclusive).
+    */
+    random: function (min, max) {
+
+        if (min === undefined) { min = 0; }
+        if (max === undefined) { max = 1; }
+
+        if (min === max)
+        {
+            return min;
+        }
+
+        if (min < max)
+        {
+            var temp = min;
+            min = max;
+            max = temp;
+        }
+
+        return (Math.random() * (max - min) + min);
+
+    },
+
+    /**
+    * Returns a random integer in the range `[min, max]`. If these parameters are not in order than they will be put in order.
+    * Default is 0 for `min` and 1 for `max`.
     *
     * @method Phaser.Math#between
-    * @param {number} min - The minimum value. Must be positive, and less than 'max'.
-    * @param {number} max - The maximum value. Must be position, and greater than 'min'.
-    * @return {number} A value between the range min to max.
+    * @param {number} min - The minimum value. Must be a Number.
+    * @param {number} max - The maximum value. Must be a Number.
+    * @return {number} An integer between min (inclusive) and max (inclusive).
     */
     between: function (min, max) {
 
-        return Math.floor(Math.random() * (max - min + 1) + min);
+        if (min === undefined) { min = 0; }
+        if (max === undefined) { max = 1; }
+
+        if (min === max)
+        {
+            return min;
+        }
+
+        if (min < max)
+        {
+            var temp = min;
+            min = max;
+            max = temp;
+        }
+
+        min = Math.ceil(min);
+        max = Math.floor(max);
+
+        return Math.floor(Math.random() * (max - min + 1)) + min;
 
     },
 
@@ -40600,31 +42041,6 @@ Phaser.Math = {
 
     }
 
-};
-
-var degreeToRadiansFactor = Math.PI / 180;
-var radianToDegreesFactor = 180 / Math.PI;
-
-/**
-* Convert degrees to radians.
-*
-* @method Phaser.Math#degToRad
-* @param {number} degrees - Angle in degrees.
-* @return {number} Angle in radians.
-*/
-Phaser.Math.degToRad = function degToRad (degrees) {
-    return degrees * degreeToRadiansFactor;
-};
-
-/**
-* Convert radians to degrees.
-*
-* @method Phaser.Math#radToDeg
-* @param {number} radians - Angle in radians.
-* @return {number} Angle in degrees
-*/
-Phaser.Math.radToDeg = function radToDeg (radians) {
-    return radians * radianToDegreesFactor;
 };
 
 /* jshint noempty: false */
@@ -47039,7 +48455,7 @@ Phaser.Frame.prototype = {
 
     /**
      * Clones this Frame into a new Phaser.Frame object and returns it.
-     * Note that all properties are cloned, including the name, index and UUID.
+     * Note that all properties are cloned, including the name and index.
      *
      * @method Phaser.Frame#clone
      * @return {Phaser.Frame} An exact copy of this Frame object.
@@ -47390,9 +48806,10 @@ Phaser.AnimationParser = {
     * @param {number} [frameMax=-1] - The total number of animation frames to extract from the Sprite Sheet. The default value of -1 means "extract all frames".
     * @param {number} [margin=0] - If the frames have been drawn with a margin, specify the amount here.
     * @param {number} [spacing=0] - If the frames have been drawn with spacing between them, specify the amount here.
+    * @param {number} [skipFrames=0] - Skip a number of frames. Useful when there are multiple sprite sheets in one image.
     * @return {Phaser.FrameData} A FrameData object containing the parsed frames.
     */
-    spriteSheet: function (game, key, frameWidth, frameHeight, frameMax, margin, spacing) {
+    spriteSheet: function (game, key, frameWidth, frameHeight, frameMax, margin, spacing, skipFrames) {
 
         var img = key;
 
@@ -47423,9 +48840,24 @@ Phaser.AnimationParser = {
         var column = Math.floor((height - margin) / (frameHeight + spacing));
         var total = row * column;
 
+        if (skipFrames > total || skipFrames < -total)
+        {
+            console.warn(
+                "Phaser.AnimationParser.spriteSheet: skipFrames = " +
+                skipFrames.toString() + " is larger than total sprite number " +
+                total.toString());
+            return null;
+        }
+
+        if (skipFrames < 0)
+        {
+            // Allow negative skipframes.
+            skipFrames = total + skipFrames;
+        }
+
         if (frameMax !== -1)
         {
-            total = frameMax;
+            total = skipFrames + frameMax;
         }
 
         //  Zero or smaller than frame sizes?
@@ -48213,8 +49645,8 @@ Phaser.Cache.prototype = {
     * @param {string} key - The key that this asset will be stored in the cache under. This should be unique within this cache.
     * @param {string} url - The URL the asset was loaded from. If the asset was not loaded externally set to `null`.
     * @param {object} data - Extra font data.
-    * @param {object} atlasData - Texture atlas frames data.
-    * @param {string} [atlasType='xml'] - The format of the texture atlas ( 'json' or 'xml' ).
+    * @param {object} atlasData - The Bitmap Font data.
+    * @param {string} [atlasType='xml'] - The format of the Bitmap Font data file: `json` or `xml`.
     * @param {number} [xSpacing=0] - If you'd like to add additional horizontal spacing between the characters then set the pixel value here.
     * @param {number} [ySpacing=0] - If you'd like to add additional vertical spacing between the lines then set the pixel value here.
     */
@@ -48242,6 +49674,61 @@ Phaser.Cache.prototype = {
         this._cache.bitmapFont[key] = obj;
 
         this._resolveURL(url, obj);
+
+    },
+
+    /**
+    * Add a new Bitmap Font to the Cache, where the font texture is part of a Texture Atlas.
+    * 
+    * The atlas must already exist in the cache, and be available based on the given `atlasKey`.
+    * 
+    * The `atlasFrame` specifies the name of the frame within the atlas that the Bitmap Font is
+    * stored in.
+    *
+    * The `dataKey` is the key of the XML or JSON Bitmap Font Data, which must already be in
+    * the Cache.
+    *
+    * @method Phaser.Cache#addBitmapFontFromAtlas
+    * @param {string} key - The key that this asset will be stored in the cache under. This should be unique within this cache.
+    * @param {string} atlasKey - The key of the Texture Atlas in the Cache.
+    * @param {string} atlasFrame - The frame of the Texture Atlas that the Bitmap Font is in.
+    * @param {string} dataKey - The key of the Bitmap Font data in the Cache
+    * @param {string} [dataType='xml'] - The format of the Bitmap Font data: `json` or `xml`.
+    * @param {number} [xSpacing=0] - If you'd like to add additional horizontal spacing between the characters then set the pixel value here.
+    * @param {number} [ySpacing=0] - If you'd like to add additional vertical spacing between the lines then set the pixel value here.
+    */
+    addBitmapFontFromAtlas: function (key, atlasKey, atlasFrame, dataKey, dataType, xSpacing, ySpacing) {
+
+        var frame = this.getFrameByName(atlasKey, atlasFrame);
+
+        if (!frame)
+        {
+            return;
+        }
+
+        var obj = {
+            font: null,
+            base: this.getBaseTexture(atlasKey),
+            frame: frame
+        };
+
+        if (xSpacing === undefined) { xSpacing = 0; }
+        if (ySpacing === undefined) { ySpacing = 0; }
+
+        var fontData;
+
+        if (dataType === 'json')
+        {
+            fontData = this.getJSON(dataKey);
+            obj.font = Phaser.LoaderParser.jsonBitmapFont(fontData, obj.base, xSpacing, ySpacing, frame);
+        }
+        else
+        {
+            fontData = this.getXML(dataKey);
+            obj.font = Phaser.LoaderParser.xmlBitmapFont(fontData, obj.base, xSpacing, ySpacing, frame);
+        }
+
+        this._cache.bitmapFont[key] = obj;
 
     },
 
@@ -48335,8 +49822,9 @@ Phaser.Cache.prototype = {
     * @param {number} [frameMax=-1] - How many frames stored in the sprite sheet. If -1 then it divides the whole sheet evenly.
     * @param {number} [margin=0] - If the frames have been drawn with a margin, specify the amount here.
     * @param {number} [spacing=0] - If the frames have been drawn with spacing between them, specify the amount here.
+    * @param {number} [skipFrames=0] - Skip a number of frames. Useful when there are multiple sprite sheets in one image.
     */
-    addSpriteSheet: function (key, url, data, frameWidth, frameHeight, frameMax, margin, spacing) {
+    addSpriteSheet: function (key, url, data, frameWidth, frameHeight, frameMax, margin, spacing, skipFrames) {
 
         if (frameMax === undefined) { frameMax = -1; }
         if (margin === undefined) { margin = 0; }
@@ -48351,7 +49839,7 @@ Phaser.Cache.prototype = {
             margin: margin,
             spacing: spacing,
             base: new PIXI.BaseTexture(data),
-            frameData: Phaser.AnimationParser.spriteSheet(this.game, data, frameWidth, frameHeight, frameMax, margin, spacing)
+            frameData: Phaser.AnimationParser.spriteSheet(this.game, data, frameWidth, frameHeight, frameMax, margin, spacing, skipFrames)
         };
 
         this._cache.image[key] = obj;
@@ -50810,15 +52298,17 @@ Phaser.Loader.prototype = {
     * @param {number} [frameMax=-1] - How many frames in this sprite sheet. If not specified it will divide the whole image into frames.
     * @param {number} [margin=0] - If the frames have been drawn with a margin, specify the amount here.
     * @param {number} [spacing=0] - If the frames have been drawn with spacing between them, specify the amount here.
+    * @param {number} [skipFrames=0] - Skip a number of frames. Useful when there are multiple sprite sheets in one image.
     * @return {Phaser.Loader} This Loader instance.
     */
-    spritesheet: function (key, url, frameWidth, frameHeight, frameMax, margin, spacing) {
+    spritesheet: function (key, url, frameWidth, frameHeight, frameMax, margin, spacing, skipFrames) {
 
         if (frameMax === undefined) { frameMax = -1; }
         if (margin === undefined) { margin = 0; }
         if (spacing === undefined) { spacing = 0; }
+        if (skipFrames === undefined) { skipFrames = 0; }
 
-        return this.addToFileList('spritesheet', key, url, { frameWidth: frameWidth, frameHeight: frameHeight, frameMax: frameMax, margin: margin, spacing: spacing }, false, '.png');
+        return this.addToFileList('spritesheet', key, url, { frameWidth: frameWidth, frameHeight: frameHeight, frameMax: frameMax, margin: margin, spacing: spacing, skipFrames: skipFrames }, false, '.png');
 
     },
 
@@ -51842,7 +53332,7 @@ Phaser.Loader.prototype = {
                     break;
 
                 case "spritesheet":
-                    this.spritesheet(file.key, file.url, file.frameWidth, file.frameHeight, file.frameMax, file.margin, file.spacing);
+                    this.spritesheet(file.key, file.url, file.frameWidth, file.frameHeight, file.frameMax, file.margin, file.spacing, file.skipFrames);
                     break;
 
                 case "video":
@@ -52522,7 +54012,7 @@ Phaser.Loader.prototype = {
 
             case 'spritesheet':
 
-                this.cache.addSpriteSheet(file.key, file.url, file.data, file.frameWidth, file.frameHeight, file.frameMax, file.margin, file.spacing);
+                this.cache.addSpriteSheet(file.key, file.url, file.data, file.frameWidth, file.frameHeight, file.frameMax, file.margin, file.spacing, file.skipFrames);
                 break;
 
             case 'textureatlas':
@@ -52962,9 +54452,10 @@ Phaser.LoaderParser = {
     * @param {PIXI.BaseTexture} baseTexture - The BaseTexture this font uses.
     * @param {number} [xSpacing=0] - Additional horizontal spacing between the characters.
     * @param {number} [ySpacing=0] - Additional vertical spacing between the characters.
+    * @param {Phaser.Frame} [frame] - Optional Frame, if this font is embedded in a texture atlas.
     * @return {object} The parsed Bitmap Font data.
     */
-    xmlBitmapFont: function (xml, baseTexture, xSpacing, ySpacing) {
+    xmlBitmapFont: function (xml, baseTexture, xSpacing, ySpacing, frame) {
 
         var data = {};
         var info = xml.getElementsByTagName('info')[0];
@@ -52977,13 +54468,16 @@ Phaser.LoaderParser = {
 
         var letters = xml.getElementsByTagName('char');
 
+        var x = (frame) ? frame.x : 0;
+        var y = (frame) ? frame.y : 0;
+
         for (var i = 0; i < letters.length; i++)
         {
             var charCode = parseInt(letters[i].getAttribute('id'), 10);
 
             data.chars[charCode] = {
-                x: parseInt(letters[i].getAttribute('x'), 10),
-                y: parseInt(letters[i].getAttribute('y'), 10),
+                x: x + parseInt(letters[i].getAttribute('x'), 10),
+                y: y + parseInt(letters[i].getAttribute('y'), 10),
                 width: parseInt(letters[i].getAttribute('width'), 10),
                 height: parseInt(letters[i].getAttribute('height'), 10),
                 xOffset: parseInt(letters[i].getAttribute('xoffset'), 10),
@@ -53016,9 +54510,10 @@ Phaser.LoaderParser = {
     * @param {PIXI.BaseTexture} baseTexture - The BaseTexture this font uses.
     * @param {number} [xSpacing=0] - Additional horizontal spacing between the characters.
     * @param {number} [ySpacing=0] - Additional vertical spacing between the characters.
+    * @param {Phaser.Frame} [frame] - Optional Frame, if this font is embedded in a texture atlas.
     * @return {object} The parsed Bitmap Font data.
     */
-    jsonBitmapFont: function (json, baseTexture, xSpacing, ySpacing) {
+    jsonBitmapFont: function (json, baseTexture, xSpacing, ySpacing, frame) {
 
         var data = {
             font: json.font.info._face,
@@ -53027,6 +54522,9 @@ Phaser.LoaderParser = {
             chars: {}
         };
 
+        var x = (frame) ? frame.x : 0;
+        var y = (frame) ? frame.y : 0;
+
         json.font.chars["char"].forEach(
 
             function parseChar(letter) {
@@ -53034,8 +54532,8 @@ Phaser.LoaderParser = {
                 var charCode = parseInt(letter._id, 10);
 
                 data.chars[charCode] = {
-                    x: parseInt(letter._x, 10),
-                    y: parseInt(letter._y, 10),
+                    x: x + parseInt(letter._x, 10),
+                    y: y + parseInt(letter._y, 10),
                     width: parseInt(letter._width, 10),
                     height: parseInt(letter._height, 10),
                     xOffset: parseInt(letter._xoffset, 10),
@@ -53047,8 +54545,8 @@ Phaser.LoaderParser = {
 
         );
 
-        if (json.font.kernings && json.font.kernings.kerning) {
-
+        if (json.font.kernings && json.font.kernings.kerning)
+        {
             json.font.kernings.kerning.forEach(
 
                 function parseKerning(kerning) {
@@ -53058,7 +54556,6 @@ Phaser.LoaderParser = {
                 }
 
             );
-
         }
 
         return this.finalizeBitmapFont(baseTexture, data);
@@ -58126,7 +59623,7 @@ Phaser.Utils.Debug.prototype = {
 
             this.game.scale.onSizeChange.add(this.resize, this);
 
-            this.canvas = PIXI.CanvasPool.create(this, this.game.width, this.game.height);
+            this.canvas = Phaser.CanvasPool.create(this, this.game.width, this.game.height);
             this.context = this.canvas.getContext('2d');
         }
 
@@ -58892,7 +60389,7 @@ Phaser.Utils.Debug.prototype = {
     */
     destroy: function () {
     
-        PIXI.CanvasPool.remove(this);
+        Phaser.CanvasPool.remove(this);
 
     }
 
@@ -60953,6 +62450,38 @@ Phaser.Color = {
     toABGR: function (r, g, b, a) {
 
         return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
+
+    },
+
+    /**
+    * Converts a hex color value to an [R, G, B] array.
+    *
+    * @static
+    * @method Phaser.Color.hexToRGBArray
+    * @param {number} color - The color to convert to an RGB array. In the format 0xRRGGBB.
+    * @return {array} An array with element 0 containing the Red value, 1 containing Green, and 2 containing Blue.
+    */
+    hexToRGBArray: function (color) {
+
+        return [
+            (color >> 16 & 0xFF) / 255,
+            (color >> 8 & 0xFF) / 255,
+            (color & 0xFF) / 255
+        ];
+
+    },
+
+    /**
+    * Converts an RGB color array, in the format: [R, G, B], to a hex color value.
+    *
+    * @static
+    * @method Phaser.Color.RGBArrayToHex
+    * @param {array} rgb - An array with element 0 containing the Red value, 1 containing Green, and 2 containing Blue.
+    * @return {number} The color value, in the format 0xRRGGBB.
+    */
+    RGBArrayToHex: function (rgb) {
+
+        return ((rgb[0] * 255 << 16) + (rgb[1] * 255 << 8) + rgb[2] * 255);
 
     },
 
@@ -74610,7 +76139,7 @@ Phaser.TilemapLayer = function (game, tilemap, index, width, height) {
     * @property {HTMLCanvasElement} canvas
     * @protected
     */
-    this.canvas = PIXI.CanvasPool.create(this, width, height);
+    this.canvas = Phaser.CanvasPool.create(this, width, height);
 
     /**
     * The 2d context of the canvas.
@@ -74817,7 +76346,7 @@ Phaser.TilemapLayer.ensureSharedCopyCanvas = function () {
 
     if (!this.sharedCopyCanvas)
     {
-        this.sharedCopyCanvas = PIXI.CanvasPool.create(this, 2, 2);
+        this.sharedCopyCanvas = Phaser.CanvasPool.create(this, 2, 2);
     }
 
     return this.sharedCopyCanvas;
@@ -74909,7 +76438,7 @@ Phaser.TilemapLayer.prototype._renderWebGL = function (renderSession) {
 */
 Phaser.TilemapLayer.prototype.destroy = function() {
 
-    PIXI.CanvasPool.remove(this);
+    Phaser.CanvasPool.remove(this);
 
     Phaser.Component.Destroy.prototype.destroy.call(this);
 
@@ -79854,6 +81383,13 @@ Phaser.Video = function (game, key, url) {
     this._pending = false;
 
     /**
+    * @property {boolean} _pendingChangeSource - Internal var tracking play pending.
+    * @private
+    * @default
+    */
+    this._pendingChangeSource = false;
+
+    /**
     * @property {boolean} _autoplay - Internal var tracking autoplay when changing source.
     * @private
     * @default
@@ -80285,7 +81821,9 @@ Phaser.Video.prototype = {
     },
 
     /**
-     * Starts this video playing if it's not already doing so.
+     * Starts this video playing.
+     * 
+     * If the video is already playing, or has been queued to play with `changeSource` then this method just returns.
      *
      * @method Phaser.Video#play
      * @param {boolean} [loop=false] - Should the video loop automatically when it reaches the end? Please note that at present some browsers (i.e. Chrome) do not support *seamless* video looping.
@@ -80293,6 +81831,11 @@ Phaser.Video.prototype = {
      * @return {Phaser.Video} This Video object for method chaining.
      */
     play: function (loop, playbackRate) {
+
+        if (this._pendingChangeSource)
+        {
+            return this;
+        }
 
         if (loop === undefined) { loop = false; }
         if (playbackRate === undefined) { playbackRate = 1; }
@@ -80408,7 +81951,7 @@ Phaser.Video.prototype = {
             }
             else
             {
-                this.video.src = "";
+                this.video.src = '';
 
                 if (this.videoStream['active'])
                 {
@@ -80426,7 +81969,6 @@ Phaser.Video.prototype = {
                     {
                         this.videoStream.stop();
                     }
-
                 }
             }
 
@@ -80633,6 +82175,8 @@ Phaser.Video.prototype = {
 
         this.video.pause();
 
+        this._pendingChangeSource = true;
+
         this.retry = this.retryLimit;
 
         this._retryID = window.setTimeout(this.checkVideoProgress.bind(this), this.retryInterval);
@@ -80663,6 +82207,8 @@ Phaser.Video.prototype = {
         // if (this.video.readyState === 2 || this.video.readyState === 4)
         if (this.video.readyState === 4)
         {
+            this._pendingChangeSource = false;
+
             //  We've got enough data to update the texture for playback
             this.updateTexture();
         }
@@ -81049,7 +82595,7 @@ Object.defineProperty(Phaser.Video.prototype, "playing", {
 
     get: function () {
 
-        return !(this.video.paused && this.video.ended);
+        return (this.video) ? !(this.video.paused && this.video.ended) : false;
 
     }
 
@@ -81084,20 +82630,6 @@ if (PIXI.Texture.emptyTexture === undefined)
 if (PIXI.DisplayObject._tempMatrix === undefined)
 {
     PIXI.DisplayObject._tempMatrix = new PIXI.Matrix();
-}
-
-if (PIXI.RenderTexture.tempMatrix === undefined)
-{
-    PIXI.RenderTexture.tempMatrix = new PIXI.Matrix();
-}
-
-if (PIXI.Graphics && PIXI.Graphics.POLY === undefined)
-{
-    PIXI.Graphics.POLY = Phaser.POLYGON;
-    PIXI.Graphics.RECT = Phaser.RECTANGLE;
-    PIXI.Graphics.CIRC = Phaser.CIRCLE;
-    PIXI.Graphics.ELIP = Phaser.ELLIPSE;
-    PIXI.Graphics.RREC = Phaser.ROUNDEDRECTANGLE;
 }
 
 PIXI.TextureSilentFail = true;
